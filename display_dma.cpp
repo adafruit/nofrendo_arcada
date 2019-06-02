@@ -10,7 +10,7 @@ extern volatile bool test_invert_screen;
 
 #include "display_dma.h"
 #if defined(USE_SPI_DMA)
-  #error("Must not have SPI DMA enabled in Adafruit_SPITFT.h"
+  #error("Must not have SPI DMA enabled in Adafruit_SPITFT.h")
 #endif
 
 #include <Adafruit_ZeroDMA.h>
@@ -185,8 +185,7 @@ void Display_DMA::refresh(void) {
   }
   Serial.println("DMA refresh");
   if (! setDmaStruct()) {
-    Serial.println("Failed to set up DMA");
-    while (1);
+    arcada.haltBox("Failed to set up DMA");
   }
   // Initialize descriptor list SRC addrs
   for(int d=0; d<numDescriptors; d++) {

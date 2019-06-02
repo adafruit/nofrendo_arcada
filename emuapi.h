@@ -16,40 +16,6 @@
 #define TFT_VBUFFER_YCROP    0
 #define SINGLELINE_RENDERING 1
 
-#define ACTION_NONE          0
-#define ACTION_MAXKBDVAL     12
-#define ACTION_EXITKBD       128
-#define ACTION_RUNTFT        129
-#define ACTION_RUNVGA        130
-
-#ifdef KEYMAP_PRESENT
-
-#define TAREA_W_DEF          32
-#define TAREA_H_DEF          32
-#define TAREA_END            255
-#define TAREA_NEW_ROW        254
-#define TAREA_NEW_COL        253
-#define TAREA_XY             252
-#define TAREA_WH             251
-
-#define KEYBOARD_X           104
-#define KEYBOARD_Y           78
-#define KEYBOARD_KEY_H       30
-#define KEYBOARD_KEY_W       21
-#define KEYBOARD_HIT_COLOR   RGBVAL16(0xff,0x00,0x00)
-
-const unsigned short keysw[] = {
-  TAREA_XY,KEYBOARD_X,KEYBOARD_Y,
-  TAREA_WH,KEYBOARD_KEY_W,KEYBOARD_KEY_H,
-  TAREA_NEW_ROW,40,40,
-  TAREA_END};
-   
-const unsigned short keys[] = {
-  2,3};  
-   
-#endif
-
-
 extern void emu_init(void);
 extern void emu_printf(const char *str);
 extern void * emu_Malloc(int size);

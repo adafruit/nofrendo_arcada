@@ -10,6 +10,10 @@ extern "C" {
 #include "keyboard_osd.h"
 #include "display_dma.h"
 
+#if !defined(USE_TINYUSB)
+  #error("Please select TinyUSB for the USB stack!")
+#endif
+
 Adafruit_Arcada arcada;
 Display_DMA tft = Display_DMA();
 
@@ -29,6 +33,7 @@ static unsigned short palette16[PALETTE_SIZE];
 #define FRAME_LED 12
 #define EMUSTEP_LED 11
 bool emu_toggle=false;
+bool fileSelect=true;
 
 volatile bool test_invert_screen = false;
 
@@ -57,42 +62,32 @@ static void main_step() {
   if (button_CurState & (ARCADA_BUTTONMASK_START | ARCADA_BUTTONMASK_SELECT)) {
     hold_start_select++;
     if (hold_start_select == 100) {
-      test_invert_screen = !test_invert_screen;
-      Serial.printf("Invert %d", test_invert_screen);
-      hold_start_select = 0;
-/*
       emu_printf("Quit!");
       tft.stop();
       delay(50);
       nes_End();
       arcada.fillScreen(ARCADA_BLACK);
-      toggleMenu(true);*/
+      fileSelect = true;
     }
   } else {
     hold_start_select = 0;
   }
-     
-  if (menuActive()) {
-    int action = handleMenu(bClick);
-    char * filename = menuSelection();
-    if (action == ACTION_RUNTFT) {
-      arcada.fillScreen(ARCADA_BLACK);
-      if (!arcada.getFrameBuffer() && !arcada.createFrameBuffer(EMUDISPLAY_WIDTH, EMUDISPLAY_HEIGHT)) {
-        Serial.println("Failed to create framebuffer, out of memory?");
-        while(1);
-      }
-      tft.setFrameBuffer(arcada.getFrameBuffer());     
-      toggleMenu(false);
-      tft.refresh();
-      emu_Init(filename);
+  if (fileSelect) {
+    char filename_path[512];
+    while (! arcada.chooseFile("/nes", filename_path, 512, "nes"));
+    Serial.print("Selected: "); Serial.println(filename_path);
+    arcada.fillScreen(ARCADA_BLACK);
+    if (!arcada.getFrameBuffer() && !arcada.createFrameBuffer(EMUDISPLAY_WIDTH, EMUDISPLAY_HEIGHT)) {
+      arcada.haltBox("Failed to create framebuffer, out of memory?");
     }
-
-    delay(20);
-  }
-  else {
-      digitalWrite(EMUSTEP_LED, emu_toggle);
-      emu_toggle = !emu_toggle;
-      emu_Step();
+    tft.setFrameBuffer(arcada.getFrameBuffer());     
+    fileSelect = false;
+    tft.refresh();
+    emu_Init(filename_path);
+  } else {
+    digitalWrite(EMUSTEP_LED, emu_toggle);
+    emu_toggle = !emu_toggle;
+    emu_Step();
   }
 }
 
@@ -108,31 +103,38 @@ static void vblCount() {
 // the setup() method runs once, when the sketch starts
 // ****************************************************
 void setup() {
-  //while (!Serial);
+  // Setup hardware, start USB disk drive
+  arcada.begin();
+  arcada.filesysBeginMSD();
   delay(100);
+
+  // Wait for serial if desired
+  Serial.begin(115200);
+  while (!Serial) delay(10);
   //pinMode(A15, OUTPUT);
   //digitalWrite(A15, HIGH);
   Serial.println("-----------------------------");
 
-  if (!arcada.begin()) {
-    Serial.println("Couldn't init arcada");
-    while (1);
+  // Init screen with blue so we know its working
+  arcada.displayBegin();
+  arcada.fillScreen(ARCADA_BLUE);
+  arcada.setBacklight(255);
+
+  // Check we have a valid filesys
+  if (arcada.filesysBegin()) {
+    Serial.println("Found filesystem!");
+  } else {
+    arcada.haltBox("No filesystem found! For QSPI flash, load CircuitPython. For SD cards, format with FAT");
   }
-  if (!arcada.filesysBegin()) {
-    Serial.println("Filesystem failed");
-    while (1);
-  }
+
+  // Check we have some ROMs!
   if (!arcada.chdir("/nes")) {
-    Serial.println("Change to /nes ROMs folder failed");
-    while (1);
+    arcada.haltBox("Cound not find /nes ROMs folder. Please create & add ROMs, then restart.");
   }
 
   Serial.printf("Filesys & ROM folder initialized, %d files found\n", arcada.filesysListFiles());
 
-  arcada.displayBegin();
-  arcada.setBacklight(255);
   arcada.enableSpeaker(true);
-  arcada.fillScreen(ARCADA_RED);
   emu_init();  
 
 #ifdef TIMER_LED
