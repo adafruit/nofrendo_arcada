@@ -1,6 +1,5 @@
 extern "C" {
-  #include "emuapi.h"
-  #include "iopins.h"  
+  #include "emuapi.h"  
   #include "nes_emu.h"
 }
 

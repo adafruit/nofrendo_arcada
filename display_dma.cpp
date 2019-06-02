@@ -17,8 +17,6 @@ extern volatile bool test_invert_screen;
 #include "wiring_private.h"  // pinPeripheral() function
 #include <malloc.h>          // memalign() function
 
-#include "iopins.h"
-
 // Actually 50 MHz due to timer shenanigans below, but SPI lib still thinks it's 24 MHz
 #define SPICLOCK 24000000
 

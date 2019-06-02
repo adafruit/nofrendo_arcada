@@ -2,11 +2,8 @@
 #include <Adafruit_Arcada.h>
 extern Adafruit_Arcada arcada;
 
-#define KEYMAP_PRESENT 1
-
 extern "C" {
   #include "emuapi.h"
-  #include "iopins.h"  
 }
 
 extern Display_DMA tft;
