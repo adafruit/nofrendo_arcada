@@ -62,6 +62,7 @@ static void main_step() {
     if (hold_start_select == 100) {
       emu_printf("Quit!");
       tft.stop();
+      mymixer.stop();
       delay(50);
       nes_End();
       arcada.fillScreen(ARCADA_BLACK);
@@ -82,6 +83,7 @@ static void main_step() {
     fileSelect = false;
     tft.refresh();
     emu_Init(filename_path);
+    mymixer.start();
   } else {
     digitalWrite(EMUSTEP_LED, emu_toggle);
     emu_toggle = !emu_toggle;
@@ -133,7 +135,8 @@ void setup() {
   Serial.printf("Filesys & ROM folder initialized, %d files found\n", arcada.filesysListFiles());
 
   arcada.enableSpeaker(true);
-  emu_init();  
+  emu_init();
+  mymixer.start();
 
 #ifdef TIMER_LED
   pinMode(TIMER_LED, OUTPUT);
