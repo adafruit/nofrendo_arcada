@@ -12,9 +12,7 @@ static File file;
 void emu_Halt(char * error_msg) {
   Serial.println(error_msg);
   tft.stop();
-  delay(100);
-  arcada.displayBegin();
-  arcada.fillScreen(ARCADA_BLUE);
+  arcada.fillScreen(ARCADA_BLACK);
   arcada.haltBox(error_msg);
 }
 
@@ -70,7 +68,7 @@ int emu_FileOpen(char * filename)
   } else {
     char error_msg[255];
     sprintf(error_msg, "emu_FileOpen: failed to open file %s");
-    arcada.haltBox(error_msg);
+    emu_Halt(error_msg);
   }
   return (retval);
 }
@@ -86,7 +84,7 @@ int emu_FileRead(char * buf, int size)
 {
   int retval = file.read(buf, size);
   if (retval != size) {
-    arcada.haltBox("FileRead failed");
+    emu_Halt("FileRead failed");
   }
   return (retval);     
 }
@@ -95,7 +93,7 @@ unsigned char emu_FileGetc(void) {
   unsigned char c;
   int retval = file.read(&c, 1);
   if (retval != 1) {
-    arcada.haltBox("emu_FileGetc failed");
+    emu_Halt("emu_FileGetc failed");
   }  
   return c; 
 }
@@ -141,7 +139,7 @@ int emu_LoadFile(char * filename, char * buf, int numbytes) {
     if (numbytes >= filesize)
     {
       if (file.read(buf, filesize) != filesize) {
-        arcada.haltBox("File read failed");
+        emu_Halt("File read failed");
       }        
     }
     file.close();

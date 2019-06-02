@@ -28,69 +28,10 @@ int descriptor_bytes;
 
 static uint16_t *screen = NULL;
 
-volatile bool cancelled = false;
+volatile bool paused = false;
 volatile uint8_t ntransfer = 0;
 
 Display_DMA *foo; // Pointer into class so callback can access stuff
-
-// DMA transfer-in-progress indicator and callback
-static volatile bool dma_busy = false;
-static void dma_callback(Adafruit_ZeroDMA *_dma) {
-  dma_busy = false;
-  foo->dmaFrame();
-}
-
-void Display_DMA::dmaFrame(void) {
-  ntransfer++;
-  if (ntransfer >= SCREEN_DMA_NUM_SETTINGS) {   
-    ntransfer = 0;
-  }
-
-  digitalWrite(ARCADA_TFT_DC, 0);
-  ARCADA_TFT_SPI.transfer(ILI9341_SLPOUT);
-  digitalWrite(ARCADA_TFT_DC, 1);
-  digitalWrite(ARCADA_TFT_CS, 1);
-  ARCADA_TFT_SPI.endTransaction();
-  if (cancelled) {
-    return;
-  }
-  setAreaCentered();
-  cancelled = false;
-  
-  ARCADA_TFT_SPI.beginTransaction(SPISettings(SPICLOCK, MSBFIRST, SPI_MODE0));
-  digitalWrite(ARCADA_TFT_CS, 0);
-  digitalWrite(ARCADA_TFT_DC, 0);
-  ARCADA_TFT_SPI.transfer(ILI9341_RAMWR);
-  digitalWrite(ARCADA_TFT_DC, 1);
-
-#ifdef HIGH_SPEED_SPI
-  int sercom_id_core, sercom_id_slow;
-  sercom_id_core = DISPLAY_SERCOM_GCLKIDCORE;
-  sercom_id_slow = DISPLAY_SERCOM_GCLKIDSLOW;
-
-  // Override SPI clock source to use 100 MHz peripheral clock (for 50 MHz SPI)
-  GCLK_PCHCTRL_Type pchctrl;
-
-  GCLK->PCHCTRL[sercom_id_core].bit.CHEN = 0;     // Disable timer
-  while(GCLK->PCHCTRL[sercom_id_core].bit.CHEN);  // Wait for disable
-  pchctrl.bit.GEN                        = 2;     // Use GENERIC_CLOCK_GENERATOR_100M defined in startup.c
-  pchctrl.bit.CHEN                       = 1;
-  GCLK->PCHCTRL[sercom_id_core].reg      = pchctrl.reg;
-  while(!GCLK->PCHCTRL[sercom_id_core].bit.CHEN); // Wait for enable
-
-  GCLK->PCHCTRL[sercom_id_slow].bit.CHEN = 0;     // Disable timer
-  while(GCLK->PCHCTRL[sercom_id_slow].bit.CHEN);  // Wait for disable
-  pchctrl.bit.GEN                        = 2;     // Use GENERIC_CLOCK_GENERATOR_100M defined in startup.c
-  pchctrl.bit.CHEN                       = 1;
-  GCLK->PCHCTRL[sercom_id_slow].reg      = pchctrl.reg;
-  while(!GCLK->PCHCTRL[sercom_id_slow].bit.CHEN); // Wait for enable
-#endif
-
-  dma_busy = true;
-  dma.startJob(); // Trigger next SPI DMA transfer
-}
-
-
 
 static bool setDmaStruct() {
   if (dma.allocate() != DMA_STATUS_OK) { // Allocate channel
@@ -167,9 +108,7 @@ void Display_DMA::setArea(uint16_t x1,uint16_t y1,uint16_t x2,uint16_t y2) {
   arcada.setAddrWindow(x1, y1, x2-x1+1, y2-y1+1);
 }
 
-
 void Display_DMA::refresh(void) {
-  while (dma_busy);
   digitalWrite(ARCADA_TFT_DC, 0);
   ARCADA_TFT_SPI.transfer(ILI9341_SLPOUT);
   digitalWrite(ARCADA_TFT_DC, 1);
@@ -181,9 +120,12 @@ void Display_DMA::refresh(void) {
     Serial.println("No screen framebuffer!");
     return;
   }
-  Serial.println("DMA refresh");
-  if (! setDmaStruct()) {
-    arcada.haltBox("Failed to set up DMA");
+
+  Serial.println("DMA create");
+  if (! paused) {
+    if (! setDmaStruct()) {
+      arcada.haltBox("Failed to set up DMA");
+    }
   }
   // Initialize descriptor list SRC addrs
   for(int d=0; d<numDescriptors; d++) {
@@ -192,13 +134,8 @@ void Display_DMA::refresh(void) {
   }
   // Move new descriptor into place...
   memcpy(dptr, &descriptor[0], sizeof(DmacDescriptor));
-  dma_busy = true;
-  foo = this; // Save pointer to ourselves so callback (outside class) can reach members
-  dma.loop(true);
-  //  dma.setCallback(dma_callback);
 
   setAreaCentered();
-  cancelled = false; 
   
   ARCADA_TFT_SPI.beginTransaction(SPISettings(SPICLOCK, MSBFIRST, SPI_MODE0));
   digitalWrite(ARCADA_TFT_CS, 0);
@@ -207,14 +144,19 @@ void Display_DMA::refresh(void) {
   digitalWrite(ARCADA_TFT_DC, 1);
 
   Serial.print("DMA kick");
+
   dma.startJob();                // Trigger first SPI DMA transfer
+  dma.loop(true);
+  paused = false; 
 }
 
 
 void Display_DMA::stop(void) {
   Serial.println("DMA stop");
 
-  cancelled = true;
+  paused = true;
+  dma.abort();
+  delay(100);
   ARCADA_TFT_SPI.beginTransaction(SPISettings(SPICLOCK, MSBFIRST, SPI_MODE0));  
   ARCADA_TFT_SPI.endTransaction();
   digitalWrite(ARCADA_TFT_CS, 1);
