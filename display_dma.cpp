@@ -121,8 +121,8 @@ static bool setDmaStruct() {
   }
   int                dmac_id;
   volatile uint32_t *data_reg;
-  dmac_id  = DISPLAY_SERCOM_DMACID;
-  data_reg = &DISPLAY_SERCOM->SPI.DATA.reg;
+  dmac_id  = ARCADA_TFT_SPI.getDMAC_ID_TX();
+  data_reg = ARCADA_TFT_SPI.getDataRegister();
   dma.setPriority(DMA_PRIORITY_3);
   dma.setTrigger(dmac_id);
   dma.setAction(DMA_TRIGGER_ACTON_BEAT);

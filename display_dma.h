@@ -18,20 +18,8 @@
 #define DMA_FULL 1
 
 #if ARCADA_TFT_WIDTH == 320
-// we assume this is an ILI9341, and ST7735's dont like overclocked SPI
-#define HIGH_SPEED_SPI
-#endif
-
-#if defined(ARDUINO_GRAND_CENTRAL_M4) 
-  #define DISPLAY_SERCOM SERCOM7
-  #define DISPLAY_SERCOM_DMACID SERCOM7_DMAC_ID_TX
-  #define DISPLAY_SERCOM_GCLKIDCORE SERCOM7_GCLK_ID_CORE
-  #define DISPLAY_SERCOM_GCLKIDSLOW SERCOM7_GCLK_ID_SLOW
-#else
-  #define DISPLAY_SERCOM SERCOM4
-  #define DISPLAY_SERCOM_DMACID SERCOM4_DMAC_ID_TX
-  #define DISPLAY_SERCOM_GCLKIDCORE SERCOM4_GCLK_ID_CORE
-  #define DISPLAY_SERCOM_GCLKIDSLOW SERCOM4_GCLK_ID_SLOW
+  // we assume this is an ILI9341, and ST7735's dont like overclocked SPI
+  #define HIGH_SPEED_SPI
 #endif
 
 #define RGBVAL32(r,g,b)  ( (r<<16) | (g<<8) | b )

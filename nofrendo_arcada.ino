@@ -6,7 +6,6 @@ extern "C" {
 #include <Adafruit_Arcada.h>
 #include <Audio.h>
 #include <AudioStream.h>
-#include "keyboard_osd.h"
 #include "display_dma.h"
 
 #if !defined(USE_TINYUSB)
