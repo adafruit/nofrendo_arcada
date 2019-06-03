@@ -39,7 +39,8 @@ volatile bool vbl=true;
 static int skip=0;
 uint16_t hold_start_select = 0;
 extern uint16_t button_CurState;
-
+char rom_filename_path[512];
+    
 static void main_step() {
   uint16_t bClick = emu_DebounceLocalKeys();
   
@@ -64,7 +65,6 @@ static void main_step() {
       tft.stop();
       delay(50);
       mymixer.stop();
-      Serial.println("Saving state"); delay(50);
       emu_SaveState();
       nes_End();
       arcada.fillScreen(ARCADA_BLACK);
@@ -74,9 +74,8 @@ static void main_step() {
     hold_start_select = 0;
   }
   if (fileSelect) {
-    char filename_path[512];
-    while (! arcada.chooseFile("/nes", filename_path, 512, "nes"));
-    Serial.print("Selected: "); Serial.println(filename_path);
+    while (! arcada.chooseFile("/nes", rom_filename_path, 512, "nes"));
+    Serial.print("Selected: "); Serial.println(rom_filename_path);
     arcada.fillScreen(ARCADA_BLACK);
     if (!arcada.getFrameBuffer() && !arcada.createFrameBuffer(EMUDISPLAY_WIDTH, EMUDISPLAY_HEIGHT)) {
       arcada.haltBox("Failed to create framebuffer, out of memory?");
@@ -84,7 +83,7 @@ static void main_step() {
     tft.setFrameBuffer(arcada.getFrameBuffer());     
     fileSelect = false;
     tft.refresh();
-    emu_Init(filename_path);
+    emu_Init(rom_filename_path);
     mymixer.start();
   } else {
     digitalWrite(EMUSTEP_LED, emu_toggle);

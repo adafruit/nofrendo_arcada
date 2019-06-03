@@ -350,6 +350,9 @@ void nes_emulate(void)
    frames_to_render = 0;
    nes.scanline_cycles = 0;
    nes.fiq_cycles = (int) NES_FIQ_PERIOD;
+
+   emu_LoadState();
+
 #ifdef NOLOOP
 #else   
    while (false == nes.poweroff)

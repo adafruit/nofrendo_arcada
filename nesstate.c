@@ -373,7 +373,7 @@ void load_mapperblock(nes_t *state, SNSS_FILE *snssFile)
 }
 
 
-int state_save(char* fn)
+int state_save(const char* fn)
 {
    SNSS_FILE *snssFile;
    SNSS_RETURN_CODE status;
@@ -451,9 +451,7 @@ _error:
 }
 
 
-extern bool forceConsoleReset;
-
-int state_load(char* fn)
+int state_load(const char* fn)
 {
    SNSS_FILE *snssFile;
    SNSS_RETURN_CODE status;
@@ -474,7 +472,7 @@ int state_load(char* fn)
    if (SNSS_OK != status)
    {
        printf("state_load: file '%s' could not be opened.\n", fn);
-       forceConsoleReset = true;
+       //forceConsoleReset = true;
        return 0; //goto _error;
   }
 

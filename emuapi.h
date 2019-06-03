@@ -29,6 +29,7 @@ extern void emu_FileClose(void);
 extern int emu_FileSize(char * filename);
 extern int emu_LoadFile(char * filename, char * buf, int size);
 extern int emu_LoadFileSeek(char * filename, char * buf, int size, int seek);
+extern void emu_LoadState(void);
 extern void emu_SaveState(void);
 void emu_Halt(const char * error_msg);
 

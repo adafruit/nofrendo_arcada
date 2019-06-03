@@ -8,6 +8,7 @@ extern "C" {
 }
 
 extern Display_DMA tft;
+extern char rom_filename_path[512];
 static File file;
 
 void emu_Halt(const char * error_msg) {
@@ -171,12 +172,33 @@ int emu_LoadFileSeek(char * filename, char * buf, int numbytes, int pos) {
 
 
 
-void emu_SaveState(void) {
-  char *filename = "nes_save.sav";
-  Serial.printf("Saving state\n"); delay(50);
+void emu_SaveState() {
+  char filename[512];
+  strncpy(filename, rom_filename_path, 500);
+  char *fp = filename + strlen(filename);
+  fp[0] = '.';
+  fp[1] = 's';
+  fp[2] = 'a';
+  fp[3] = 'v';
+  fp[4] = 0;
+  Serial.print("Saving state to file:");
+  Serial.println(filename);
   state_save(filename);
 }
 
+void emu_LoadState() {
+  char filename[512];
+  strncpy(filename, rom_filename_path, 500);
+  char *fp = filename + strlen(filename);
+  fp[0] = '.';
+  fp[1] = 's';
+  fp[2] = 'a';
+  fp[3] = 'v';
+  fp[4] = 0;
+  Serial.print("Loading state to file:");
+  Serial.println(filename);
+  state_load(filename);
+}
 
 static uint16_t bLastState;
 uint16_t button_CurState;
