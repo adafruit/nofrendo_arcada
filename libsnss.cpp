@@ -231,12 +231,14 @@ SNSS_OpenFile (SNSS_FILE **snssFile, const char *filename, SNSS_OPEN_MODE mode)
    {
      fp = arcada.open(filename, O_READ);
      //(*snssFile)->fp = fopen (filename, "rb");
+     Serial.printf("OpenFile read pos/size: %d/%d\n", fp.position(), fp.size());
    }
    else
    {
      fp = arcada.open(filename, O_WRITE);
      //(*snssFile)->fp = fopen (filename, "wb");
       (*snssFile)->headerBlock.numberOfBlocks = 0;
+     Serial.printf("OpenFile write pos/size: %d/%d\n", fp.position(), fp.size());
    }
 
    if (!fp)
@@ -264,7 +266,7 @@ SNSS_CloseFile (SNSS_FILE **snssFile)
 {
    int prevLoc;
    SNSS_RETURN_CODE code;
-
+   Serial.printf("CloseFile 1 pos/size: %d/%d\n", fp.position(), fp.size());
    /* file was never open, so this should indicate success- kinda. */
    if (NULL == *snssFile)
    {
@@ -286,6 +288,7 @@ SNSS_CloseFile (SNSS_FILE **snssFile)
       //fseek((*snssFile)->fp, prevLoc, SEEK_SET);
       fp.seekSet(prevLoc);
    }
+   Serial.printf("CloseFile 2 pos/size: %d/%d\n", fp.position(), fp.size());
 
    fp.close();
 

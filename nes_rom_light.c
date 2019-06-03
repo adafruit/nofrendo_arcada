@@ -71,6 +71,90 @@ typedef struct inesheader_s
 #define  VRAM_BANK_LENGTH  0x2000
 
 
+/* Save battery-backed RAM */
+static void rom_savesram(rominfo_t *rominfo)
+{
+  // TODO - add battery backup support!
+
+  /*
+   FILE *fp;
+   char fn[PATH_MAX + 1];
+
+   ASSERT(rominfo);
+
+   if (rominfo->flags & ROM_FLAG_BATTERY)
+   {
+      strncpy(fn, rominfo->filename, PATH_MAX);
+      osd_newextension(fn, ".sav");
+
+      fp = fopen(fn, "wb");
+      if (NULL != fp)
+      {
+         fwrite(rominfo->sram, SRAM_BANK_LENGTH, rominfo->sram_banks, fp);
+         fclose(fp);
+         log_printf("Wrote battery RAM to %s.\n", fn);
+      }
+   }
+  */
+}
+
+/* Load battery-backed RAM from disk */
+static void rom_loadsram(rominfo_t *rominfo)
+{
+  // TODO - add battery backup support!
+  /*
+   FILE *fp;
+   char fn[PATH_MAX + 1];
+
+   ASSERT(rominfo);
+
+   if (rominfo->flags & ROM_FLAG_BATTERY)
+   {
+      strncpy(fn, rominfo->filename, PATH_MAX);
+      osd_newextension(fn, ".sav");
+
+      fp = fopen(fn, "rb");
+      if (NULL != fp)
+      {
+         fread(rominfo->sram, SRAM_BANK_LENGTH, rominfo->sram_banks, fp);
+         fclose(fp);
+         log_printf("Read battery RAM from %s.\n", fn);
+      }
+   }
+  */
+}
+
+/* Allocate space for SRAM */
+static int rom_allocsram(rominfo_t *rominfo)
+{
+   /* Load up SRAM */
+   rominfo->sram = emu_Malloc(SRAM_BANK_LENGTH * rominfo->sram_banks);
+   if (NULL == rominfo->sram)
+   {
+      emu_Halt("Could not allocate space for battery RAM");
+      abort(); //return -1;
+   }
+
+   /* make damn sure SRAM is clear */
+   memset(rominfo->sram, 0, SRAM_BANK_LENGTH * rominfo->sram_banks);
+   return 0;
+}
+
+/* If there's a trainer, load it in at $7000 */
+static void rom_loadtrainer(unsigned char **rom, rominfo_t *rominfo)
+{
+   ASSERT(rom);
+   ASSERT(rominfo);
+
+   if (rominfo->flags & ROM_FLAG_TRAINER)
+   {
+//      fread(rominfo->sram + TRAINER_OFFSET, TRAINER_LENGTH, 1, fp);
+      memcpy(rominfo->sram + TRAINER_OFFSET, *rom, TRAINER_LENGTH);
+      rom+=TRAINER_LENGTH;
+      log_printf("Read in trainer at $7000\n");
+   }
+}
+
 
 
 
@@ -287,11 +371,24 @@ rominfo_t *rom_load(const char *filename)
    /* Make sure we really support the mapper */
    if (false == mmc_peek(rominfo->mapper_number))
    {
+      emu_Halt("Mapper not yet implemented");
       goto _fail;
    }
 
-	if (rom_loadrom(&rom, rominfo))
+
+   /* iNES format doesn't tell us if we need SRAM, so
+   ** we have to always allocate it -- bleh!
+   ** UNIF, TAKE ME AWAY!  AAAAAAAAAA!!!
+   */
+   if (rom_allocsram(rominfo))
       goto _fail;
+
+   rom_loadtrainer(&rom, rominfo);
+
+   if (rom_loadrom(&rom, rominfo))
+      goto _fail;
+
+   rom_loadsram(rominfo);
 
    return rominfo;
 

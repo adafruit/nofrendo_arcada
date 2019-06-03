@@ -3,8 +3,8 @@
 extern Adafruit_Arcada arcada;
 
 extern "C" {
-  #include "emuapi.h"
-  #include "nesstate.h"
+#include "emuapi.h"
+#include "nesstate.h"
 }
 
 extern Display_DMA tft;
@@ -48,9 +48,9 @@ void * emu_Malloc(int size)
   }
   else {
     Serial.print("emu_Malloc: successfully allocated ");
-    Serial.print(size); Serial.println(" bytes");  
+    Serial.print(size); Serial.println(" bytes");
   }
-  
+
   return retval;
 }
 
@@ -64,10 +64,10 @@ int emu_FileOpen(char * filename)
 {
   int retval = 0;
   Serial.print("FileOpen: "); Serial.print(filename);
-  
+
   if (file = arcada.open(filename, O_READ)) {
     Serial.println("...Success!");
-    retval = 1;  
+    retval = 1;
   } else {
     char error_msg[255];
     sprintf(error_msg, "emu_FileOpen: failed to open file %s");
@@ -79,7 +79,7 @@ int emu_FileOpen(char * filename)
 uint8_t *emu_LoadROM(const char *filename) {
   Serial.print("LoadROM: "); Serial.print(filename);
   uint8_t *romdata = arcada.writeFileToFlash(filename, DEFAULT_FLASH_ADDRESS);
-  Serial.printf(" into address $%08x", (uint32_t)&romdata); 
+  Serial.printf(" into address $%08x", (uint32_t)&romdata);
   return romdata;
 }
 
@@ -89,7 +89,7 @@ int emu_FileRead(uint8_t* buf, int size)
   if (retval != size) {
     emu_Halt("FileRead failed");
   }
-  return (retval);     
+  return (retval);
 }
 
 unsigned char emu_FileGetc(void) {
@@ -97,34 +97,34 @@ unsigned char emu_FileGetc(void) {
   int retval = file.read(&c, 1);
   if (retval != 1) {
     emu_Halt("emu_FileGetc failed");
-  }  
-  return c; 
+  }
+  return c;
 }
 
 
 void emu_FileClose(void)
 {
-  file.close();  
+  file.close();
 }
 
-int emu_FileSize(char * filename) 
+int emu_FileSize(char * filename)
 {
-  int filesize=0;
+  int filesize = 0;
   emu_printf("FileSize...");
   emu_printf(filename);
 
-  if (file = arcada.open(filename, O_READ)) 
+  if (file = arcada.open(filename, O_READ))
   {
     emu_printf("filesize is...");
-    filesize = file.fileSize(); 
+    filesize = file.fileSize();
     emu_printf(filesize);
-    file.close();    
+    file.close();
   }
- 
-  return(filesize);  
+
+  return (filesize);
 }
 
-int emu_FileSeek(int pos) 
+int emu_FileSeek(int pos)
 {
   file.seek(pos);
   return pos;
@@ -132,23 +132,23 @@ int emu_FileSeek(int pos)
 
 int emu_LoadFile(char * filename, char * buf, int numbytes) {
   int filesize = 0;
-    
+
   emu_printf("LoadFile...");
   emu_printf(filename);
-  
+
   if (file = arcada.open(filename, O_READ)) {
-    filesize = file.fileSize(); 
+    filesize = file.fileSize();
     emu_printf(filesize);
     if (numbytes >= filesize)
     {
       if (file.read(buf, filesize) != filesize) {
         emu_Halt("File read failed");
-      }        
+      }
     }
     file.close();
   }
-  
-  return(filesize);
+
+  return (filesize);
 }
 
 int emu_LoadFileSeek(char * filename, char * buf, int numbytes, int pos) {
@@ -156,18 +156,18 @@ int emu_LoadFileSeek(char * filename, char * buf, int numbytes, int pos) {
 
   emu_printf("LoadFileSeek...");
   emu_printf(filename);
-  
-  if (file = arcada.open(filename, O_READ)) 
+
+  if (file = arcada.open(filename, O_READ))
   {
     file.seek(pos);
     emu_printf(numbytes);
     if (file.read(buf, numbytes) != numbytes) {
       emu_printf("File read failed");
-    }        
+    }
     file.close();
   }
-  
-  return(filesize);
+
+  return (filesize);
 }
 
 
@@ -181,6 +181,9 @@ void emu_SaveState() {
   fp[2] = 'a';
   fp[3] = 'v';
   fp[4] = 0;
+  if (arcada.exists(filename)) {
+    arcada.remove(filename);
+  }
   Serial.print("Saving state to file:");
   Serial.println(filename);
   state_save(filename);
