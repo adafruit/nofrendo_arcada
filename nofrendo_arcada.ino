@@ -60,10 +60,12 @@ static void main_step() {
   if (button_CurState & (ARCADA_BUTTONMASK_START | ARCADA_BUTTONMASK_SELECT)) {
     hold_start_select++;
     if (hold_start_select == 100) {
-      emu_printf("Quit!");
+      Serial.println("Quit!");
       tft.stop();
-      mymixer.stop();
       delay(50);
+      mymixer.stop();
+      Serial.println("Saving state"); delay(50);
+      emu_SaveState();
       nes_End();
       arcada.fillScreen(ARCADA_BLACK);
       fileSelect = true;
@@ -110,7 +112,7 @@ void setup() {
 
   // Wait for serial if desired
   Serial.begin(115200);
-  while (!Serial) delay(10);
+  //while (!Serial) delay(10);
   //pinMode(A15, OUTPUT);
   //digitalWrite(A15, HIGH);
   Serial.println("-----------------------------");

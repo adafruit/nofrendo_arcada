@@ -4,17 +4,19 @@ extern Adafruit_Arcada arcada;
 
 extern "C" {
   #include "emuapi.h"
+  #include "nesstate.h"
 }
 
 extern Display_DMA tft;
 static File file;
 
-void emu_Halt(char * error_msg) {
+void emu_Halt(const char * error_msg) {
   Serial.println(error_msg);
   tft.stop();
   arcada.fillScreen(ARCADA_BLACK);
   arcada.haltBox(error_msg);
 }
+
 
 void emu_init(void)
 {
@@ -80,7 +82,7 @@ uint8_t *emu_LoadROM(const char *filename) {
   return romdata;
 }
 
-int emu_FileRead(char * buf, int size)
+int emu_FileRead(uint8_t* buf, int size)
 {
   int retval = file.read(buf, size);
   if (retval != size) {
@@ -166,6 +168,15 @@ int emu_LoadFileSeek(char * filename, char * buf, int numbytes, int pos) {
   
   return(filesize);
 }
+
+
+
+void emu_SaveState(void) {
+  char *filename = "nes_save.sav";
+  Serial.printf("Saving state\n"); delay(50);
+  state_save(filename);
+}
+
 
 static uint16_t bLastState;
 uint16_t button_CurState;

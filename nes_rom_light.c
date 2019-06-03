@@ -31,6 +31,7 @@
 #include "nes_rom.h"
 #include "nes_mmc.h"
 #include "nes_ppu.h"
+#include "emuapi.h"
 #include "nes.h"
 #include "log.h"
 #include "osd.h"
@@ -100,14 +101,14 @@ static int rom_loadrom(unsigned char **rom, rominfo_t *rominfo)
 }
 
 
-static int *rom_findrom(const char *filename, rominfo_t *rominfo)
+static int rom_findrom(const char *filename, rominfo_t *rominfo)
 {
    int fp;
 
    ASSERT(rominfo);
 
    if (NULL == filename)
-      return NULL;
+      return 0;
 
    /* Make a copy of the name so we can extend it */
    osd_fullname(rominfo->filename, filename);
@@ -139,7 +140,7 @@ int rom_checkmagic(const char *filename)
    rominfo_t rominfo;
    int fp;
 
-   fp = rom_findrom(filename, &rominfo);
+   fp = (int)rom_findrom(filename, &rominfo);
    if (0 == fp)
       return -1;
 
@@ -317,15 +318,15 @@ void rom_free(rominfo_t **rominfo)
 
 
    if ((*rominfo)->sram)
-      free((*rominfo)->sram);
+      emu_Free((*rominfo)->sram);
    if ((*rominfo)->rom)
-      free((*rominfo)->rom);
+      emu_Free((*rominfo)->rom);
    if ((*rominfo)->vrom)
-      free((*rominfo)->vrom);
+      emu_Free((*rominfo)->vrom);
    if ((*rominfo)->vram)
-      free((*rominfo)->vram);
+      emu_Free((*rominfo)->vram);
 
-   free(*rominfo);
+   emu_Free(*rominfo);
 }
 
 /*

@@ -53,6 +53,9 @@ static struct
    bool quit;
 } console;
 
+nes_t* console_nes;
+
+
 /* our happy little timer ISR */
 volatile int nofrendo_ticks = 0;
 static void timer_isr(void)
@@ -157,6 +160,8 @@ static int internal_insert(const char *filename, system_t type)
    {
    case system_nes:
       console.machine.nes = nes_create();
+      console_nes = console.machine.nes;
+
       if (NULL == console.machine.nes)
       {
          log_printf("Failed to create NES instance.\n");

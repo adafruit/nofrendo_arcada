@@ -49,7 +49,7 @@
 
 #define  NES_SKIP_LIMIT       (NES_REFRESH_RATE / 5)   /* 12 or 10, depending on PAL/NTSC */
 
-static nes_t nes;
+nes_t nes;
 
 /* find out if a file is ours */
 int nes_isourfile(const char *filename)

@@ -22,13 +22,16 @@ extern void * emu_Malloc(int size);
 extern void emu_Free(void * pt);
 extern uint8_t *emu_LoadROM(const char *filename);
 extern int emu_FileOpen(char * filename);
-extern int emu_FileRead(char * buf, int size);
+extern int emu_FileRead(uint8_t * buf, int size);
 extern unsigned char emu_FileGetc(void);
 extern int emu_FileSeek(int seek);
 extern void emu_FileClose(void);
 extern int emu_FileSize(char * filename);
 extern int emu_LoadFile(char * filename, char * buf, int size);
 extern int emu_LoadFileSeek(char * filename, char * buf, int size, int seek);
+extern void emu_SaveState(void);
+void emu_Halt(const char * error_msg);
+
 extern void emu_SetPaletteEntry(unsigned char r, unsigned char g, unsigned char b, int index);
 extern void emu_DrawScreen(unsigned char * VBuf, int width, int height, int stride);
 extern void emu_DrawLine(unsigned char * VBuf, int width, int height, int line);

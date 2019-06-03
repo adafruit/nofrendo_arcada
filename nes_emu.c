@@ -286,5 +286,7 @@ void nes_Start(char * filename)
 }
 
 void nes_End(void) {
-
+  if (romdata) {
+     emu_Free(romdata);
+  }
 }
