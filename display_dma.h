@@ -18,8 +18,11 @@
 #define DMA_FULL 1
 
 #if ARCADA_TFT_WIDTH == 320
-  // we assume this is an ILI9341, and ST7735's dont like overclocked SPI
+  // we assume this is an ILI9341 or ST7789, and ST7735's dont like overclocked SPI
   #define HIGH_SPEED_SPI
+  #define EMU_SCALEDOWN       2
+#else 
+  #define EMU_SCALEDOWN       2
 #endif
 
 #define RGBVAL32(r,g,b)  ( (r<<16) | (g<<8) | b )
@@ -32,7 +35,6 @@
 
 #define NATIVE_WIDTH      256
 #define NATIVE_HEIGHT     240
-#define EMU_SCALEDOWN       2
 #define EMUDISPLAY_WIDTH   (NATIVE_WIDTH / EMU_SCALEDOWN)
 #define EMUDISPLAY_HEIGHT  (NATIVE_HEIGHT / EMU_SCALEDOWN)
 
