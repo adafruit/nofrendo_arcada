@@ -286,7 +286,7 @@ void Display_DMA::writeLine(int width, int height, int stride, uint8_t *buf, uin
       color = red; color <<= 6; // rejoin into a color
       color |= green; color <<= 5;
       color |= blue;
-      if (test_invert_screen) color = ~color;
+      //if (test_invert_screen) color = ~color;
       *dst++=__builtin_bswap16(color);
     }
   }
