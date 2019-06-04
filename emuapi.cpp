@@ -173,8 +173,9 @@ int emu_LoadFileSeek(char * filename, char * buf, int numbytes, int pos) {
 
 
 void emu_SaveState() {
+#if defined(USE_SAVEFILES)
   char filename[512];
-  strncpy(filename, rom_filename_path, 500);
+  strcpy(filename, rom_filename_path);
   char *fp = filename + strlen(filename);
   fp[0] = '.';
   fp[1] = 's';
@@ -187,9 +188,11 @@ void emu_SaveState() {
   Serial.print("Saving state to file:");
   Serial.println(filename);
   state_save(filename);
+#endif
 }
 
 void emu_LoadState() {
+#if defined(USE_SAVEFILES)
   char filename[512];
   strncpy(filename, rom_filename_path, 500);
   char *fp = filename + strlen(filename);
@@ -201,6 +204,7 @@ void emu_LoadState() {
   Serial.print("Loading state to file:");
   Serial.println(filename);
   state_load(filename);
+#endif
 }
 
 static uint16_t bLastState;

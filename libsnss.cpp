@@ -218,7 +218,9 @@ SNSS_OpenFile (SNSS_FILE **snssFile, const char *filename, SNSS_OPEN_MODE mode)
    *snssFile = (SNSS_FILE *)malloc(sizeof(SNSS_FILE));
    if (NULL == *snssFile)
    {
-       abort();
+     //abort();
+      Serial.printf("Could not malloc SNSS File");
+     arcada.haltBox("Could not malloc SNSS File");
       return SNSS_OUT_OF_MEMORY;
    }
 
@@ -237,8 +239,11 @@ SNSS_OpenFile (SNSS_FILE **snssFile, const char *filename, SNSS_OPEN_MODE mode)
    {
      fp = arcada.open(filename, O_WRITE);
      //(*snssFile)->fp = fopen (filename, "wb");
-      (*snssFile)->headerBlock.numberOfBlocks = 0;
+     (*snssFile)->headerBlock.numberOfBlocks = 0;
      Serial.printf("OpenFile write pos/size: %d/%d\n", fp.position(), fp.size());
+     if (!fp) {
+       arcada.haltBox("Failed to open savefile");
+     }
    }
 
    if (!fp)
@@ -246,6 +251,7 @@ SNSS_OpenFile (SNSS_FILE **snssFile, const char *filename, SNSS_OPEN_MODE mode)
        //abort();
       free(*snssFile);
       *snssFile = NULL;
+      Serial.printf("Failed to open file");
       return SNSS_OPEN_FAILED;
    }
 
@@ -272,7 +278,8 @@ SNSS_CloseFile (SNSS_FILE **snssFile)
    {
       return SNSS_OK;
    }
-
+   fp.flush();
+   delay(10);
    if (SNSS_OPEN_WRITE == (*snssFile)->mode)
    {
       prevLoc = fp.position(); //ftell((*snssFile)->fp);
@@ -289,7 +296,8 @@ SNSS_CloseFile (SNSS_FILE **snssFile)
       fp.seekSet(prevLoc);
    }
    Serial.printf("CloseFile 2 pos/size: %d/%d\n", fp.position(), fp.size());
-
+   fp.flush();
+   delay(10);
    fp.close();
 
    free(*snssFile);

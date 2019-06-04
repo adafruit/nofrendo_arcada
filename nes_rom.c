@@ -127,7 +127,9 @@ static void rom_loadsram(rominfo_t *rominfo)
 /* Allocate space for SRAM */
 static int rom_allocsram(rominfo_t *rominfo)
 {
+#ifdef USE_SRAM
    /* Load up SRAM */
+   emu_printf("Alloc. SRAM");
    rominfo->sram = emu_Malloc(SRAM_BANK_LENGTH * rominfo->sram_banks);
    if (NULL == rominfo->sram)
    {
@@ -137,6 +139,9 @@ static int rom_allocsram(rominfo_t *rominfo)
 
    /* make damn sure SRAM is clear */
    memset(rominfo->sram, 0, SRAM_BANK_LENGTH * rominfo->sram_banks);
+#else
+   rominfo->sram = NULL;
+#endif
    return 0;
 }
 
@@ -174,6 +179,7 @@ static int rom_loadrom(unsigned char **rom, rominfo_t *rominfo)
    }
    else
    {
+      emu_printf("Alloc VRAM");
       rominfo->vram = emu_Malloc(VRAM_LENGTH);
       if (NULL == rominfo->vram)
       {
@@ -358,6 +364,7 @@ rominfo_t *rom_load(const char *filename)
    unsigned char *rom=(unsigned char*)osd_getromdata();
    rominfo_t *rominfo;
 
+   emu_printf("Alloc ROMinfo");
    rominfo = emu_Malloc(sizeof(rominfo_t));
    if (NULL == rominfo)
       return NULL;

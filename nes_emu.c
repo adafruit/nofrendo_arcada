@@ -268,6 +268,8 @@ void nes_Step(void)
 void nes_Start(char * filename)
 {
   strcpy(romname,filename);
+
+#if !defined(USE_FLASH_FOR_ROMSTORAGE)
   int romsize = emu_FileSize(filename); 
   romdata = (char*)emu_Malloc(romsize);
   if (romdata)
@@ -281,12 +283,15 @@ void nes_Start(char * filename)
       romdata = NULL;
     }  
   }
-  
-	//romdata = (char*)emu_LoadROM(filename);
+#else
+  romdata = (char*)emu_LoadROM(filename);
+#endif
 }
 
 void nes_End(void) {
+#if !defined(USE_FLASH_FOR_ROMSTORAGE)
   if (romdata) {
-     emu_Free(romdata);
+    emu_Free(romdata);
   }
+#endif
 }

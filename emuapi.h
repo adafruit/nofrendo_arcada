@@ -6,7 +6,10 @@
 #define CUSTOM_SND  1
 //#define TIMER_REND  1
 
-#define DEFAULT_FLASH_ADDRESS 0x2F000  // make sure this is after this programs memory
+#define DEFAULT_FLASH_ADDRESS 0x40000  // make sure this is after this programs memory
+#define USE_FLASH_FOR_ROMSTORAGE
+//#define USE_SAVEFILES
+//#define USE_SRAM
 
 #define emu_Init(ROM) {nes_Start(ROM); nes_Init(); }
 #define emu_Step(x) { nes_Step(); }

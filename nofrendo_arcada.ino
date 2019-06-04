@@ -9,7 +9,7 @@ extern "C" {
 #include "display_dma.h"
 
 #if !defined(USE_TINYUSB)
-  #error("Please select TinyUSB for the USB stack!")
+ // #error("Please select TinyUSB for the USB stack!")
 #endif
 
 Adafruit_Arcada arcada;
@@ -68,7 +68,7 @@ static void main_step() {
       emu_SaveState();
       nes_End();
       arcada.fillScreen(ARCADA_BLACK);
-      fileSelect = true;
+      NVIC_SystemReset();
     }
   } else {
     hold_start_select = 0;
@@ -169,7 +169,7 @@ void emu_SetPaletteEntry(unsigned char r, unsigned char g, unsigned char b, int 
   if (index<PALETTE_SIZE) {
     //Serial.println("%d: %d %d %d\n", index, r,g,b);
     palette8[index]  = RGBVAL8(r,g,b);
-    palette16[index] = RGBVAL16(r,g,b);
+    palette16[index] = __builtin_bswap16(RGBVAL16(r,g,b));
   }
 }
 
