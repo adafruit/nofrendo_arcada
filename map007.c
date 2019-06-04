@@ -44,13 +44,13 @@ static void map7_init(void)
    mmc_bankrom(32, 0x8000, 0);
 }
 
-static map_memwrite map7_memwrite[] =
+static const map_memwrite map7_memwrite[] =
 {
    { 0x8000, 0xFFFF, map7_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map7_intf =
+const mapintf_t map7_intf =
 {
    7, /* mapper number */
    "AOROM", /* mapper name */

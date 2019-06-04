@@ -76,13 +76,13 @@ static void map229_write (uint32 address, uint8 value)
   return;
 }
 
-static map_memwrite map229_memwrite [] =
+static const map_memwrite map229_memwrite [] =
 {
    { 0x8000, 0xFFFF, map229_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map229_intf =
+const mapintf_t map229_intf =
 {
    229,                              /* Mapper number */
    "31 in 1 (bootleg)",              /* Mapper name */

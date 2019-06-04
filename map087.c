@@ -47,13 +47,13 @@ static void map87_write (uint32 address, uint8 value)
   return;
 }
 
-static map_memwrite map87_memwrite [] =
+static const map_memwrite map87_memwrite [] =
 {
    { 0x6000, 0x7FFF, map87_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map87_intf =
+const mapintf_t map87_intf =
 {
    87,                               /* Mapper number */
    "16K VROM switch",                /* Mapper name */

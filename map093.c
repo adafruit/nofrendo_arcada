@@ -40,13 +40,13 @@ static void map93_write(uint32 address, uint8 value)
       ppu_mirror(0, 0, 1, 1); /* horiz */
 }
 
-static map_memwrite map93_memwrite[] =
+static const map_memwrite map93_memwrite[] =
 {
    { 0x8000, 0xFFFF, map93_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map93_intf =
+const mapintf_t map93_intf =
 {
    93, /* mapper number */
    "Mapper 93", /* mapper name */

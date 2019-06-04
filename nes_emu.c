@@ -74,6 +74,7 @@ void osd_setsound(void (*playfunc)(void *buffer, int length))
 #endif
 }
 
+
 static void osd_stopsound(void)
 {
 #if HAS_SND
@@ -269,7 +270,9 @@ void nes_Start(char * filename)
 {
   strcpy(romname,filename);
 
-#if !defined(USE_FLASH_FOR_ROMSTORAGE)
+#if defined(USE_FLASH_FOR_ROMSTORAGE)
+  romdata = (char*)emu_LoadROM(filename);
+#else
   int romsize = emu_FileSize(filename); 
   romdata = (char*)emu_Malloc(romsize);
   if (romdata)
@@ -283,8 +286,6 @@ void nes_Start(char * filename)
       romdata = NULL;
     }  
   }
-#else
-  romdata = (char*)emu_LoadROM(filename);
 #endif
 }
 

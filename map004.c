@@ -193,13 +193,13 @@ static void map4_init(void)
    vrombase = 0x0000;
 }
 
-static map_memwrite map4_memwrite[] =
+static const map_memwrite map4_memwrite[] =
 {
    { 0x8000, 0xFFFF, map4_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map4_intf =
+const mapintf_t map4_intf =
 {
    4, /* mapper number */
    "MMC3", /* mapper name */

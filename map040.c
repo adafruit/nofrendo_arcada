@@ -99,13 +99,13 @@ static void map40_setstate(SnssMapperBlock *state)
    irq.enabled = state->extraData.mapper40.irqCounterEnabled;
 }
 
-static map_memwrite map40_memwrite[] =
+static const map_memwrite map40_memwrite[] =
 {
    { 0x8000, 0xFFFF, map40_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map40_intf =
+const mapintf_t map40_intf =
 {
    40, /* mapper number */
    "SMB 2j (pirate)", /* mapper name */

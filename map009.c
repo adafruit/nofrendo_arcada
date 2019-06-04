@@ -141,7 +141,7 @@ static map_memwrite map9_memwrite[] =
    {     -1,     -1, NULL }
 };
 
-mapintf_t map9_intf =
+const mapintf_t map9_intf =
 {
    9, /* mapper number */
    "MMC2", /* mapper name */

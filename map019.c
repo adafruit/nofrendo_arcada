@@ -114,14 +114,14 @@ static void map19_setstate(SnssMapperBlock *state)
    irq.enabled = state->extraData.mapper19.irqCounterEnabled;
 }
 
-static map_memwrite map19_memwrite[] =
+static const map_memwrite map19_memwrite[] =
 {
    { 0x5000, 0x5FFF, map19_write },
    { 0x8000, 0xFFFF, map19_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map19_intf =
+const mapintf_t map19_intf =
 {
    19, /* mapper number */
    "Namcot 106", /* mapper name */

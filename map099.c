@@ -35,13 +35,13 @@ static void map99_vromswitch(uint8 value)
 }
 
 /* mapper 99: VS. System */
-static void map99_init(void)
+static const void map99_init(void)
 {
    ppu_mirror(0, 1, 2, 3);
    ppu_setvromswitch(map99_vromswitch);
 }
 
-mapintf_t map99_intf =
+const mapintf_t map99_intf =
 {
    99, /* mapper number */
    "VS. System", /* mapper name */

@@ -42,13 +42,13 @@ static void map66_init(void)
 }
 
 
-static map_memwrite map66_memwrite[] =
+static const map_memwrite map66_memwrite[] =
 {
    { 0x8000, 0xFFFF, map66_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map66_intf =
+const mapintf_t map66_intf =
 {
    66, /* mapper number */
    "GNROM", /* mapper name */

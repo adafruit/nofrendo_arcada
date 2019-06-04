@@ -150,13 +150,13 @@ static void map42_getstate (SnssMapperBlock *state)
   return;
 }
 
-static map_memwrite map42_memwrite [] =
+static const map_memwrite map42_memwrite [] =
 {
    { 0xE000, 0xFFFF, map42_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map42_intf =
+const mapintf_t map42_intf =
 {
    42,                               /* Mapper number */
    "Baby Mario (bootleg)",           /* Mapper name */

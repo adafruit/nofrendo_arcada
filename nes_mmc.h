@@ -54,7 +54,7 @@ typedef struct mapintf_s
    void (*get_state)(SnssMapperBlock *state);
    void (*set_state)(SnssMapperBlock *state);
    map_memread *mem_read;
-   map_memwrite *mem_write;
+   const map_memwrite *mem_write;
    apuext_t *sound_ext;
 } mapintf_t;
 

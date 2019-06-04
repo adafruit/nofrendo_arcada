@@ -140,7 +140,7 @@ static void map18_write(uint32 address, uint8 value)
 }
 
 
-static map_memwrite map18_memwrite[] =
+static const map_memwrite map18_memwrite[] =
 {
    { 0x8000, 0xFFFF, map18_write },
    {     -1,     -1, NULL }
@@ -160,7 +160,7 @@ static void map18_setstate(SnssMapperBlock *state)
    irq.enabled = state->extraData.mapper18.irqCounterEnabled;
 }
 
-mapintf_t map18_intf =
+const mapintf_t map18_intf =
 {
    18, /* mapper number */
    "Jaleco SS8806", /* mapper name */

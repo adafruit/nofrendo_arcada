@@ -43,13 +43,13 @@ static void map79_init(void)
    mmc_bankvrom(8, 0x0000, 0);
 }
 
-static map_memwrite map79_memwrite[] =
+static const map_memwrite map79_memwrite[] =
 {
    { 0x4100, 0x5FFF, map79_write }, /* ????? incorrect range ??? */
    {     -1,     -1, NULL }
 };
 
-mapintf_t map79_intf =
+const mapintf_t map79_intf =
 {
    79, /* mapper number */
    "NINA-03/06", /* mapper name */

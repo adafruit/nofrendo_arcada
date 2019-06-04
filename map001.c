@@ -187,7 +187,7 @@ static map_memwrite map1_memwrite[] =
    {     -1,     -1, NULL }
 };
 
-mapintf_t map1_intf =
+const mapintf_t map1_intf =
 {
    1, /* mapper number */
    "MMC1", /* mapper name */

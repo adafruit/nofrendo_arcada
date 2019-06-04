@@ -42,13 +42,13 @@ static void map8_init(void)
    mmc_bankvrom(8, 0x0000, 0);
 }
 
-static map_memwrite map8_memwrite[] =
+static const map_memwrite map8_memwrite[] =
 {
    { 0x8000, 0xFFFF, map8_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map8_intf =
+const mapintf_t map8_intf =
 {
    8, /* mapper number */
    "FFE F3xxx", /* mapper name */

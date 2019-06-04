@@ -128,14 +128,14 @@ static void map41_getstate (SnssMapperBlock *state)
   return;
 }
 
-static map_memwrite map41_memwrite [] =
+static const map_memwrite map41_memwrite [] =
 {
    { 0x6000, 0x67FF, map41_low_write },
    { 0x8000, 0xFFFF, map41_high_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map41_intf =
+const mapintf_t map41_intf =
 {
    41,                               /* Mapper number */
    "Caltron 6 in 1",                 /* Mapper name */

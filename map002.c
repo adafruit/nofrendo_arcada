@@ -34,13 +34,13 @@ static void map2_write(uint32 address, uint8 value)
    mmc_bankrom(16, 0x8000, value);
 }
 
-static map_memwrite map2_memwrite[] =
+static const map_memwrite map2_memwrite[] =
 {
    { 0x8000, 0xFFFF, map2_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map2_intf =
+const mapintf_t map2_intf =
 {
    2, /* mapper number */
    "UNROM", /* mapper name */

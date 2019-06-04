@@ -37,6 +37,8 @@
 #include "nes_pal.h"
 #include "nesinput.h"
 
+uint8 ppu_renderline[320];
+
 
 /* PPU access */
 #define  PPU_MEM(x)           ppu.page[(x) >> 10][(x)]
@@ -779,7 +781,7 @@ typedef struct obj_s
 static void ppu_renderoam(uint8 *vidbuf, int scanline)
 {
    uint8 *buf_ptr;
-   uint32 vram_offset, savecol[2];
+   uint32 vram_offset, savecol[2]={0,0};
    int sprite_num, spritecount;
    obj_t *sprite_ptr;
    uint8 sprite_height;
@@ -1001,11 +1003,9 @@ bool ppu_enabled(void)
    return (ppu.bg_on || ppu.obj_on);
 }
 
-static uint8 line[320];
-
 static void ppu_renderscanline(bitmap_t *bmp, int scanline, bool draw_flag)
 {
-   uint8 *buf = &line[0]; //bmp->line[scanline];
+   uint8 *buf = &ppu_renderline[0]; //bmp->line[scanline];
 
    /* start scanline - transfer ppu latch into vaddr */
    if (ppu.bg_on || ppu.obj_on)

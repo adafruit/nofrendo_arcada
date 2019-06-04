@@ -28,7 +28,7 @@
 
 #include "nes_apu.h"
 
-extern apuext_t mmc5_ext;
+extern const apuext_t mmc5_ext;
 
 #endif /* !_MMC5_SND_H_ */
 

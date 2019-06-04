@@ -49,7 +49,7 @@
 #define  MMC_LAST2KVROM    (MMC_2KVROM - 1)
 #define  MMC_LAST1KVROM    (MMC_1KVROM - 1)
 
-static mmc_t mmc;
+mmc_t mmc;
 
 rominfo_t *mmc_getinfo(void)
 {
