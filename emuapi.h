@@ -6,10 +6,20 @@
 #define CUSTOM_SND  1
 //#define TIMER_REND  1
 
-#define DEFAULT_FLASH_ADDRESS 0x40000  // make sure this is after this programs memory
-#define USE_FLASH_FOR_ROMSTORAGE
-//#define USE_SAVEFILES
-//#define USE_SRAM
+
+#if defined(ADAFRUIT_PYGAMER_ADVANCE_M4_EXPRESS)
+  // we assume this is an ILI9341 or ST7789, and ST7735's dont like overclocked SPI
+  #define HIGH_SPEED_SPI
+  #define EMU_SCALEDOWN       1
+  #define USE_FLASH_FOR_ROMSTORAGE
+  #define DEFAULT_FLASH_ADDRESS 0x40000  // make sure this is after this programs memory
+  //#define USE_SAVEFILES
+  #define USE_SRAM
+#elif defined(ADAFRUIT_PYGAMER_M4_EXPRESS) ||  defined(ADAFRUIT_PYBADGE_M4_EXPRESS)
+  #define EMU_SCALEDOWN       2
+#else 
+  #error "Need to give some platform details!"
+#endif
 
 #define emu_Init(ROM) {nes_Start(ROM); nes_Init(); }
 #define emu_Step(x) { nes_Step(); }

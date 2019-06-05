@@ -7,7 +7,7 @@
 #include <Adafruit_Arcada.h>
 extern Adafruit_Arcada arcada;
 extern volatile bool test_invert_screen;
-
+#include "emuapi.h"
 #include "display_dma.h"
 #if defined(USE_SPI_DMA)
   #error("Must not have SPI DMA enabled in Adafruit_SPITFT.h")
