@@ -17,8 +17,8 @@ extern volatile bool test_invert_screen;
 #include "wiring_private.h"  // pinPeripheral() function
 #include <malloc.h>          // memalign() function
 
-// Actually 50 MHz due to timer shenanigans below, but SPI lib still thinks it's 24 MHz
-#define SPICLOCK 24000000
+// Fastest we can go with ST7735 and 100MHz periph clock:
+#define SPICLOCK 25000000
 
 Adafruit_ZeroDMA dma;                  ///< DMA instance
 DmacDescriptor  *dptr         = NULL;  ///< 1st descriptor
@@ -34,6 +34,9 @@ volatile uint8_t ntransfer = 0;
 Display_DMA *foo; // Pointer into class so callback can access stuff
 
 static bool setDmaStruct() {
+  // Switch screen SPI to faster peripheral clock
+  ARCADA_TFT_SPI.setClockSource(SERCOM_CLOCK_SOURCE_100M);
+
   if (dma.allocate() != DMA_STATUS_OK) { // Allocate channel
     Serial.println("Couldn't allocate DMA");
     return false;
