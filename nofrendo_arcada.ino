@@ -9,7 +9,7 @@ extern "C" {
 #include "display_dma.h"
 
 #if !defined(USE_TINYUSB)
- // #error("Please select TinyUSB for the USB stack!")
+  #error("Please select TinyUSB for the USB stack!")
 #endif
 
 Adafruit_Arcada arcada;

@@ -8,15 +8,16 @@
 
 
 #if defined(ADAFRUIT_PYGAMER_ADVANCE_M4_EXPRESS)
-  // we assume this is an ILI9341 or ST7789, and ST7735's dont like overclocked SPI
-  #define HIGH_SPEED_SPI
+  #define HIGH_SPEED_SPI                 // Only for ST7789's - the 7735 doesnt like it!
   #define EMU_SCALEDOWN       1
-  #define USE_FLASH_FOR_ROMSTORAGE
+  #define USE_FLASH_FOR_ROMSTORAGE       // we need almost all the RAM for the framebuffer
   #define DEFAULT_FLASH_ADDRESS 0x40000  // make sure this is after this programs memory
   //#define USE_SAVEFILES
   #define USE_SRAM
 #elif defined(ADAFRUIT_PYGAMER_M4_EXPRESS) ||  defined(ADAFRUIT_PYBADGE_M4_EXPRESS)
   #define EMU_SCALEDOWN       2
+  #define USE_FLASH_FOR_ROMSTORAGE       // slows it down, but bigger roms!
+  #define DEFAULT_FLASH_ADDRESS 0x40000  // make sure this is after this programs memory
 #else 
   #error "Need to give some platform details!"
 #endif
