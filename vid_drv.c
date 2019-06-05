@@ -334,7 +334,7 @@ INLINE int calc_dirties(rect_t *list)
 
 void vid_flush(void)
 {
-   bitmap_t *temp;
+  //bitmap_t *temp;
    int num_dirties;
    rect_t dirty_rects[MAX_DIRTIES];
 

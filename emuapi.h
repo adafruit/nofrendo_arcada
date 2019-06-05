@@ -8,6 +8,7 @@
 
 
 #if defined(ADAFRUIT_PYGAMER_ADVANCE_M4_EXPRESS)
+// 320x240 display + SAMD51J20
   #define HIGH_SPEED_SPI                 // Only for ST7789's - the 7735 doesnt like it!
   #define EMU_SCALEDOWN       1
   #define USE_FLASH_FOR_ROMSTORAGE       // we need almost all the RAM for the framebuffer
@@ -17,7 +18,7 @@
 #elif defined(ADAFRUIT_PYGAMER_M4_EXPRESS) ||  defined(ADAFRUIT_PYBADGE_M4_EXPRESS)
   #define EMU_SCALEDOWN       2
   #define USE_FLASH_FOR_ROMSTORAGE       // slows it down, but bigger roms!
-  #define DEFAULT_FLASH_ADDRESS 0x40000  // make sure this is after this programs memory
+  #define DEFAULT_FLASH_ADDRESS 0x40000  // make sure this is after this programs memory, with unrolled loops we're at 222,192!
 #else 
   #error "Need to give some platform details!"
 #endif

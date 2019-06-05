@@ -31,7 +31,7 @@
 #include "nes6502.h"
 #include "log.h"
 #include "nes_mmc.h"
-
+#include "emuapi.h"
 #include "bitmap.h"
 #include "vid_drv.h"
 #include "nes_pal.h"

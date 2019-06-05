@@ -43,7 +43,7 @@ static bitmap_t *_make_bitmap(uint8 *data_addr, bool hw, int width,
                               int height, int pitch, int overdraw)
 {
    bitmap_t *bitmap;
-   int i;
+   //int i;
 
    /* quick safety check */
    if (NULL == data_addr)

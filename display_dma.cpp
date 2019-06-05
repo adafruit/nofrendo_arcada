@@ -183,68 +183,6 @@ void Display_DMA::fillScreen(uint16_t color) {
   }
 }
 
-
-#if 0
-// NOT CURRENTLY BEING USED IN NOFRENDO.
-// If it does get used, may need to handle 2x2 palette methodology.
-// See also DrawScreen() in nofrendo_arcada.ino.
-void Display_DMA::writeScreen(int width, int height, int stride, uint8_t *buf, uint16_t *palette16) {
-  uint8_t *buffer=buf;
-  uint8_t *src; 
-  if (screen != NULL) {
-    uint16_t *dst = &screen[0];
-    int i,j;
-    if (width*2 <= EMUDISPLAY_WIDTH) {
-      for (j=0; j<height; j++)
-      {
-        src=buffer;
-        for (i=0; i<width; i++)
-        {
-          uint16_t val = palette16[*src++];
-          *dst++ = val;
-          *dst++ = val;
-        }
-        dst += (EMUDISPLAY_WIDTH-width*2);
-        if (height*2 <= EMUDISPLAY_HEIGHT) {
-          src=buffer;
-          for (i=0; i<width; i++)
-          {
-            uint16_t val = palette16[*src++];
-            *dst++ = val;
-            *dst++ = val;
-          }
-          dst += (EMUDISPLAY_WIDTH-width*2);      
-        } 
-        buffer += stride;      
-      }
-    }
-    else if (width <= EMUDISPLAY_WIDTH) {
-      dst += (EMUDISPLAY_WIDTH-width)/2;
-      for (j=0; j<height; j++)
-      {
-        src=buffer;
-        for (i=0; i<width; i++)
-        {
-          uint16_t val = palette16[*src++];
-          *dst++ = val;
-        }
-        dst += (EMUDISPLAY_WIDTH-width);
-        if (height*2 <= EMUDISPLAY_HEIGHT) {
-          src=buffer;
-          for (i=0; i<width; i++)
-          {
-            uint16_t val = palette16[*src++];
-            *dst++ = val;
-          }
-          dst += (EMUDISPLAY_WIDTH-width);
-        }      
-        buffer += stride;  
-      }
-    }    
-  }
-}
-#endif
-
 #if EMU_SCALEDOWN == 1
 
 void Display_DMA::writeLine(int width, int height, int stride, uint8_t *buf, uint16_t *palette16) {

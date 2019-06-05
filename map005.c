@@ -260,7 +260,7 @@ static map_memread map5_memread[] =
    {     -1,     -1, NULL }
 };
 
-mapintf_t map5_intf =
+const mapintf_t map5_intf =
 {
    5, /* mapper number */
    "MMC5", /* mapper name */
