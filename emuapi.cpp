@@ -79,7 +79,7 @@ int emu_FileOpen(char * filename)
 uint8_t *emu_LoadROM(const char *filename) {
   Serial.print("LoadROM: "); Serial.print(filename);
   uint8_t *romdata = arcada.writeFileToFlash(filename, DEFAULT_FLASH_ADDRESS);
-  Serial.printf(" into address $%08x", (uint32_t)&romdata);
+  Serial.printf(" into address $%08x", (uint32_t)romdata);
   return romdata;
 }
 
