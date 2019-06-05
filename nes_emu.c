@@ -26,7 +26,7 @@
 
 
 char configfilename[]="na";
-char romname[64];
+char romname[128];
 char* romdata=NULL;
 
 /* This is os-specific part of main() */
@@ -268,7 +268,7 @@ void nes_Step(void)
 
 void nes_Start(char * filename)
 {
-  strcpy(romname,filename);
+  strncpy(romname, filename, sizeof(romname));
 
 #if defined(USE_FLASH_FOR_ROMSTORAGE)
   romdata = (char*)emu_LoadROM(filename);

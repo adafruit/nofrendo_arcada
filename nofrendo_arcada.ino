@@ -26,16 +26,16 @@ AudioConnection   patchCord2(mymixer, 0, audioOut, 1);
 
 #if EMU_SCALEDOWN == 1
   // Packed 16-big RGB palette (big-endian order)
-  static unsigned short palette16[PALETTE_SIZE];
+  unsigned short palette16[PALETTE_SIZE];
 #elif EMU_SCALEDOWN == 2
   // Bizarro palette for 2x2 downsampling.
   // Red and blue values both go into a 32-bit unsigned type, where
   // bits 29:22 are red (8 bits) and bits 18:11 are blue (8 bits):
   // 00RRRRRRRR000BBBBBBBB00000000000
-  static uint32_t paletteRB[PALETTE_SIZE];
+  uint32_t paletteRB[PALETTE_SIZE];
   // Green goes into a 16-bit type, where bits 8:1 are green (8 bits):
   // 0000000GGGGGGGG0
-  static uint16_t paletteG[PALETTE_SIZE];
+  uint16_t paletteG[PALETTE_SIZE];
   // Later, bitwise shenanigans are used to accumulate 2x2 pixel colors
   // and shift/mask these into a 16-bit result.
 #else
@@ -52,7 +52,7 @@ bool fileSelect=true;
 volatile bool test_invert_screen = false;
 
 volatile bool vbl=true;
-static int skip=0;
+int skip=0;
 uint16_t hold_start_select = 0;
 extern uint16_t button_CurState;
 char rom_filename_path[512];
