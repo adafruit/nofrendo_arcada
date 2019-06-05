@@ -24,8 +24,24 @@ AudioConnection   patchCord1(mymixer, 0, audioOut, 0);
 AudioConnection   patchCord2(mymixer, 0, audioOut, 1);
 
 
-static unsigned char  palette8[PALETTE_SIZE];
-static unsigned short palette16[PALETTE_SIZE];
+#if EMU_SCALEDOWN == 1
+  // Packed 16-big RGB palette (big-endian order)
+  static unsigned short palette16[PALETTE_SIZE];
+#elif EMU_SCALEDOWN == 2
+  // Bizarro palette for 2x2 downsampling.
+  // Red and blue values both go into a 32-bit unsigned type, where
+  // bits 29:22 are red (8 bits) and bits 18:11 are blue (8 bits):
+  // 00RRRRRRRR000BBBBBBBB00000000000
+  static uint32_t paletteRB[PALETTE_SIZE];
+  // Green goes into a 16-bit type, where bits 8:1 are green (8 bits):
+  // 0000000GGGGGGGG0
+  static uint16_t paletteG[PALETTE_SIZE];
+  // Later, bitwise shenanigans are used to accumulate 2x2 pixel colors
+  // and shift/mask these into a 16-bit result.
+#else
+  #error("Only scale 1 or 2 supported")
+#endif
+
 
 #define TIMER_LED 13
 #define FRAME_LED 12
@@ -168,8 +184,14 @@ void emu_SetPaletteEntry(unsigned char r, unsigned char g, unsigned char b, int 
 {
   if (index<PALETTE_SIZE) {
     //Serial.println("%d: %d %d %d\n", index, r,g,b);
-    palette8[index]  = RGBVAL8(r,g,b);
+#if EMU_SCALEDOWN == 1
     palette16[index] = __builtin_bswap16(RGBVAL16(r,g,b));
+#elif EMU_SCALEDOWN == 2
+    // 00RRRRRRRR000BBBBBBBB00000000000
+    paletteRB[index] = ((uint32_t)r << 22) | ((uint32_t)b << 11);
+    // 0000000GGGGGGGG0
+    paletteG[index]  =  (uint16_t)g << 1;
+#endif
   }
 }
 
@@ -189,15 +211,24 @@ void emu_DrawLine(unsigned char * VBuf, int width, int height, int line)
     digitalWrite(FRAME_LED, frametoggle);
     frametoggle = !frametoggle;
   }
+#if EMU_SCALEDOWN == 1
   tft.writeLine(width, 1, line, VBuf, palette16);
+#elif EMU_SCALEDOWN == 2
+  tft.writeLine(width, 1, line, VBuf, paletteRB, paletteG);
+#endif
 }  
 
+#if 0
+// NOT CURRENTLY BEING USED IN NOFRENDO.
+// If it does get used, may need to handle 2x2 palette methodology.
+// See also writeScreen() in display_dma.cpp.
 void emu_DrawScreen(unsigned char * VBuf, int width, int height, int stride) 
 {
   if (skip==0) {
     tft.writeScreen(width,height-TFT_VBUFFER_YCROP,stride, VBuf+(TFT_VBUFFER_YCROP/2)*stride, palette16);
   }
 }
+#endif
 
 int emu_FrameSkip(void)
 {
