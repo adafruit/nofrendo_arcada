@@ -145,8 +145,8 @@ void Display_DMA::refresh(void) {
 
   Serial.print("DMA kick");
 
-  dma.startJob();                // Trigger first SPI DMA transfer
   dma.loop(true);
+  dma.startJob();                // Trigger first SPI DMA transfer
   paused = false; 
 }
 
