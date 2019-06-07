@@ -23,6 +23,19 @@ AudioOutputAnalogStereo  audioOut;
 AudioConnection   patchCord1(mymixer, 0, audioOut, 0);
 AudioConnection   patchCord2(mymixer, 0, audioOut, 1);
 
+#define SAVEMENU_SELECTIONS 5
+#define SAVEMENU_CONTINUE   0
+#define SAVEMENU_SAVE       1
+#define SAVEMENU_RELOAD     2
+#define SAVEMENU_SAVEEXIT   3
+#define SAVEMENU_EXIT       4
+const char *savemenu_strings[SAVEMENU_SELECTIONS] = {"Continue", "Save", "Reload Save", "Save & Exit", "Exit"};
+
+#define LOADMENU_SELECTIONS 3
+#define LOADMENU_LOADSAVED  0
+#define LOADMENU_LOADCLEAN  1
+#define LOADMENU_DELETEFILE 2
+const char *loadmenu_strings[LOADMENU_SELECTIONS] = {"Load Saved Game", "Start New Game", "Delete Save File"};
 
 #if EMU_SCALEDOWN == 1
   // Packed 16-big RGB palette (big-endian order)
@@ -81,10 +94,36 @@ static void main_step() {
       tft.stop();
       delay(50);
       mymixer.stop();
-      emu_SaveState();
-      nes_End();
-      arcada.fillScreen(ARCADA_BLACK);
-      NVIC_SystemReset();
+      uint8_t selected = arcada.menu(savemenu_strings, SAVEMENU_SELECTIONS, ARCADA_WHITE, ARCADA_BLACK);
+       
+      // save or save+exit
+      if ((selected == SAVEMENU_SAVE) || (selected == SAVEMENU_SAVEEXIT)) {
+        arcada.fillScreen(ARCADA_BLUE);
+        arcada.infoBox("Saving game state...", 0);
+        delay(100);
+        emu_SaveState();
+        arcada.fillScreen(ARCADA_BLACK);
+      }
+
+      // reload state
+      if (selected == SAVEMENU_RELOAD) {
+        arcada.fillScreen(ARCADA_BLUE);
+        arcada.infoBox("Loading game state...", 0);
+        delay(100);
+        emu_LoadState();
+        arcada.fillScreen(ARCADA_BLACK);
+      }
+      // save, reload or just continue
+      if ((selected == SAVEMENU_SAVE) || (selected == SAVEMENU_CONTINUE) || (selected == SAVEMENU_RELOAD)) {
+        tft.refresh();
+        mymixer.start();  // keep playing!
+      }
+
+      // save+exit or just exit
+      if ((selected == SAVEMENU_EXIT) || (selected == SAVEMENU_SAVEEXIT)) {
+        nes_End();
+        NVIC_SystemReset();
+      }
     }
   } else {
     hold_start_select = 0;
