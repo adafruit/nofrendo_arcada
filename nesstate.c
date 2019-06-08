@@ -480,7 +480,7 @@ int state_load(const char* fn)
 
    /* iterate through all present blocks */
    emu_printf("state_load: snssFile->headerBlock.numberOfBlocks=");
-   emu_printf(snssFile->headerBlock.numberOfBlocks);
+   emu_printi(snssFile->headerBlock.numberOfBlocks);
 
    for (i = 0; i < snssFile->headerBlock.numberOfBlocks; i++)
    {

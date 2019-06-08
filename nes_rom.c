@@ -236,7 +236,7 @@ int rom_checkmagic(const char *filename)
    if (0 == fp)
       return -1;
 
-   emu_FileRead(&head, 1*sizeof(head));
+   emu_FileRead((uint8_t *)&head, 1*sizeof(head));
 
    emu_FileClose();
 

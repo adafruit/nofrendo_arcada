@@ -35,6 +35,7 @@
 
 extern void emu_init(void);
 extern void emu_printf(const char *str);
+extern void emu_printi(int val);
 extern void * emu_Malloc(int size);
 extern void emu_Free(void * pt);
 extern uint8_t *emu_LoadROM(char *filename);
