@@ -76,6 +76,7 @@ static void rom_savesram(rominfo_t *rominfo)
 {
   // TODO - add battery backup support!
 
+  emu_printf("SRAM save not yet supported");
   /*
    FILE *fp;
    char fn[PATH_MAX + 1];
@@ -102,6 +103,8 @@ static void rom_savesram(rominfo_t *rominfo)
 static void rom_loadsram(rominfo_t *rominfo)
 {
   // TODO - add battery backup support!
+  emu_printf("SRAM load not yet supported");
+
   /*
    FILE *fp;
    char fn[PATH_MAX + 1];
@@ -134,7 +137,6 @@ static int rom_allocsram(rominfo_t *rominfo)
    if (NULL == rominfo->sram)
    {
       emu_Halt("Could not allocate space for battery RAM");
-      abort(); //return -1;
    }
 
    /* make damn sure SRAM is clear */
@@ -156,7 +158,7 @@ static void rom_loadtrainer(unsigned char **rom, rominfo_t *rominfo)
 //      fread(rominfo->sram + TRAINER_OFFSET, TRAINER_LENGTH, 1, fp);
       memcpy(rominfo->sram + TRAINER_OFFSET, *rom, TRAINER_LENGTH);
       rom+=TRAINER_LENGTH;
-      log_printf("Read in trainer at $7000\n");
+      emu_printf("Read in trainer at $7000\n");
    }
 }
 
@@ -266,6 +268,7 @@ static int rom_getheader(unsigned char **rom, rominfo_t *rominfo)
 
    if (memcmp(head.ines_magic, ROM_INES_MAGIC, 4))
    {
+     emu_Halt("Not a valid ROM image");
       return -1;
    }
 
@@ -370,9 +373,11 @@ rominfo_t *rom_load(const char *filename)
       return NULL;
 
    memset(rominfo, 0, sizeof(rominfo_t));
+   strncpy(rominfo->filename, filename, sizeof(rominfo->filename));
+   emu_printf("rom_load: rominfo->filename\n");
 
    /* Get the header and stick it into rominfo struct */
-	if (rom_getheader(&rom, rominfo))
+   if (rom_getheader(&rom, rominfo))
       goto _fail;
 
    /* Make sure we really support the mapper */
@@ -397,6 +402,8 @@ rominfo_t *rom_load(const char *filename)
 
    rom_loadsram(rominfo);
 
+   emu_printf("ROM loaded");
+
    return rominfo;
 
 _fail:
@@ -409,6 +416,7 @@ void rom_free(rominfo_t **rominfo)
 {
    if (NULL == *rominfo)
    {
+      emu_printf("ROM not loaded");
       return;
    }
 
@@ -420,6 +428,7 @@ void rom_free(rominfo_t **rominfo)
       log_printf("Default NES palette restored\n");
    }
 
+   rom_savesram(*rominfo);
 
    if ((*rominfo)->sram)
       emu_Free((*rominfo)->sram);
@@ -431,6 +440,7 @@ void rom_free(rominfo_t **rominfo)
       emu_Free((*rominfo)->vram);
 
    emu_Free(*rominfo);
+   emu_printf("ROM freed");
 }
 
 /*
