@@ -62,7 +62,7 @@ void state_setslot(int slot)
 
 int save_baseblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    printf("save_baseblock\n");
+    emu_printf("save_baseblock\n");
    int i;
 
    ASSERT(state);
@@ -103,18 +103,18 @@ int save_baseblock(nes_t *state, SNSS_FILE *snssFile)
 
 bool save_vramblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    printf("save_vramblock\n");
+   emu_printf("save_vramblock\n");
    ASSERT(state);
 
    if (NULL == state->rominfo->vram)
    {
-       printf("save_vramblock: NULL == state->rominfo->vram\n");
+       emu_printf("save_vramblock: NULL == state->rominfo->vram\n");
        return -1;
   }
 
    if (state->rominfo->vram_banks > 2)
    {
-      log_printf("too many VRAM banks: %d\n", state->rominfo->vram_banks);
+      emu_printf("too many VRAM banks!\n");
       return -1;
    }
 
@@ -126,7 +126,7 @@ bool save_vramblock(nes_t *state, SNSS_FILE *snssFile)
 
 int save_sramblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    printf("save_sramblock\n");
+    emu_printf("save_sramblock\n");
    int i;
    bool written = false;
    int sram_length;
@@ -147,13 +147,13 @@ int save_sramblock(nes_t *state, SNSS_FILE *snssFile)
 
    if (false == written)
    {
-       printf("save_srambloc: false == written\n");
+       emu_printf("save_srambloc: false == written\n");
       return -1;
   }
 
    if (state->rominfo->sram_banks > 8)
    {
-      log_printf("Unsupported number of SRAM banks: %d\n", state->rominfo->sram_banks);
+      emu_printf("Unsupported number of SRAM banks\n");
       return -1;
    }
 
@@ -169,7 +169,7 @@ int save_sramblock(nes_t *state, SNSS_FILE *snssFile)
 
 int save_soundblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    printf("save_soundblock\n");
+    emu_printf("save_soundblock\n");
    ASSERT(state);
 
    apu_getcontext(state->apu);
@@ -205,7 +205,7 @@ int save_soundblock(nes_t *state, SNSS_FILE *snssFile)
 
 int save_mapperblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    printf("save_mapperblock\n");
+    emu_printf("save_mapperblock\n");
    int i;
    ASSERT(state);
 
@@ -215,7 +215,7 @@ int save_mapperblock(nes_t *state, SNSS_FILE *snssFile)
    /* We don't need to write mapper state for mapper 0 */
    if (0 == state->mmc->intf->number)
    {
-       printf("save_mapperblock: 0 == state->mmc->intf->number\n");
+       emu_printf("save_mapperblock: 0 == state->mmc->intf->number\n");
        return -1;
     }
 
@@ -245,7 +245,7 @@ int save_mapperblock(nes_t *state, SNSS_FILE *snssFile)
 
 void load_baseblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    printf("load_baseblock\n");
+   emu_printf("load_baseblock\n");
 
    int i;
 
@@ -297,7 +297,7 @@ void load_baseblock(nes_t *state, SNSS_FILE *snssFile)
 
 void load_vramblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    printf("load_vramblock\n");
+    emu_printf("load_vramblock\n");
 
    ASSERT(state);
 
@@ -307,7 +307,7 @@ void load_vramblock(nes_t *state, SNSS_FILE *snssFile)
 
 void load_sramblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    printf("load_sramblock\n");
+    emu_printf("load_sramblock\n");
 
    ASSERT(state);
 
@@ -317,7 +317,7 @@ void load_sramblock(nes_t *state, SNSS_FILE *snssFile)
 
 void load_controllerblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    printf("load_controllerblock\n");
+    emu_printf("load_controllerblock\n");
 
    UNUSED(state);
    UNUSED(snssFile);
@@ -325,7 +325,7 @@ void load_controllerblock(nes_t *state, SNSS_FILE *snssFile)
 
 void load_soundblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    printf("load_soundblock\n");
+    emu_printf("load_soundblock\n");
 
    int i;
 
@@ -342,7 +342,7 @@ void load_soundblock(nes_t *state, SNSS_FILE *snssFile)
 /* TODO: magic numbers galore */
 void load_mapperblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    printf("load_mapperblock\n");
+    emu_printf("load_mapperblock\n");
 
    int i;
 
@@ -393,7 +393,7 @@ int state_save(const char* fn)
    if (SNSS_OK != status)
       goto _error;
 
-   printf("state_save: SNSS_OpenFile OK\n");
+   emu_printf("state_save: SNSS_OpenFile OK\n");
 
    /* now get all of our blocks */
    if (0 == save_baseblock(machine, snssFile))
@@ -402,7 +402,7 @@ int state_save(const char* fn)
       if (SNSS_OK != status)
          goto _error;
    }
-   printf("state_save: save_baseblock OK\n");
+   emu_printf("state_save: save_baseblock OK\n");
 
    if (0 == save_vramblock(machine, snssFile))
    {
@@ -410,7 +410,7 @@ int state_save(const char* fn)
       if (SNSS_OK != status)
          goto _error;
    }
-   printf("state_save: save_vramblock OK\n");
+   emu_printf("state_save: save_vramblock OK\n");
 
    if (0 == save_sramblock(machine, snssFile))
    {
@@ -418,7 +418,7 @@ int state_save(const char* fn)
       if (SNSS_OK != status)
          goto _error;
    }
-   printf("state_save: save_sramblock OK\n");
+   emu_printf("state_save: save_sramblock OK\n");
 
    if (0 == save_soundblock(machine, snssFile))
    {
@@ -426,7 +426,7 @@ int state_save(const char* fn)
       if (SNSS_OK != status)
          goto _error;
    }
-   printf("state_save: save_soundblock OK\n");
+   emu_printf("state_save: save_soundblock OK\n");
 
    if (0 == save_mapperblock(machine, snssFile))
    {
@@ -434,18 +434,19 @@ int state_save(const char* fn)
       if (SNSS_OK != status)
          goto _error;
    }
-   printf("state_save: save_mapperblock OK\n");
+   emu_printf("state_save: save_mapperblock OK\n");
 
    /* close the file, we're done */
    status = SNSS_CloseFile(&snssFile);
    if (SNSS_OK != status)
       goto _error;
 
-   printf("State %d saved", state_slot);
+   emu_printf("State saved");
    return 0;
 
 _error:
-   printf("error: %s", SNSS_GetErrorString(status));
+   emu_printf("error: ");
+   emu_printf(SNSS_GetErrorString(status));
    SNSS_CloseFile(&snssFile);
    abort();
 }
@@ -465,20 +466,21 @@ int state_load(const char* fn)
 
    ASSERT(machine);
 
-   printf("state_load: fn='%s'\n", fn);
+   emu_printf("state_load\n");
 
    /* open our file for reading */
    status = SNSS_OpenFile(&snssFile, fn, SNSS_OPEN_READ);
    if (SNSS_OK != status)
    {
-       printf("state_load: file '%s' could not be opened.\n", fn);
+       emu_printf("state_load: file could not be opened.\n");
        //forceConsoleReset = true;
        return 0; //goto _error;
   }
 
 
    /* iterate through all present blocks */
-   printf("state_load: snssFile->headerBlock.numberOfBlocks=%d\n", snssFile->headerBlock.numberOfBlocks);
+   emu_printf("state_load: snssFile->headerBlock.numberOfBlocks=");
+   emu_printf(snssFile->headerBlock.numberOfBlocks);
 
    for (i = 0; i < snssFile->headerBlock.numberOfBlocks; i++)
    {
@@ -518,7 +520,7 @@ int state_load(const char* fn)
 
       case SNSS_UNKNOWN_BLOCK:
       default:
-         log_printf("unknown SNSS block type\n");
+         emu_printf("unknown SNSS block type\n");
          break;
       }
    }
@@ -526,7 +528,7 @@ int state_load(const char* fn)
    /* close file, we're done */
    status = SNSS_CloseFile(&snssFile);
 
-   printf("State %d restored", state_slot);
+   emu_printf("State restored");
 
    return 0;
 
