@@ -11,16 +11,20 @@ extern Display_DMA tft;
 extern char rom_filename_path[512];
 static File file;
 
+
+#define LOADMENU_SELECTIONS 3
+#define LOADMENU_LOADSAVED  0
+#define LOADMENU_LOADCLEAN  1
+#define LOADMENU_DELETEFILE 2
+const char *loadmenu_strings[LOADMENU_SELECTIONS] = {"Load Saved Game", "Start New Game", "Delete Save File"};
+
+
+
 void emu_Halt(const char * error_msg) {
   Serial.println(error_msg);
   tft.stop();
   arcada.fillScreen(ARCADA_BLACK);
   arcada.haltBox(error_msg);
-}
-
-
-void emu_init(void)
-{
 }
 
 void emu_printf(const char *str)
@@ -209,9 +213,25 @@ void emu_LoadState() {
   fp[2] = 'a';
   fp[3] = 'v';
   fp[4] = 0;
-  Serial.print("Loading state to file:");
-  Serial.println(filename);
-  state_load(filename);
+  if (arcada.exists(filename)) {
+    Serial.println("Found savefile");
+    tft.stop();
+    delay(50);
+    arcada.fillScreen(ARCADA_BLUE);
+    uint8_t selected = arcada.menu(loadmenu_strings, LOADMENU_SELECTIONS, ARCADA_WHITE, ARCADA_BLACK);
+    Serial.printf("Selected %d\n", selected);
+    if (selected ==  LOADMENU_LOADSAVED) {
+      Serial.print("Loading state from file:");
+      Serial.println(filename);
+      state_load(filename);      
+    }
+    if (selected == LOADMENU_DELETEFILE) {
+      arcada.remove(filename);
+    }
+    // either way, restart the display
+    arcada.fillScreen(ARCADA_BLACK);
+    tft.refresh();
+  }
 #endif
 }
 

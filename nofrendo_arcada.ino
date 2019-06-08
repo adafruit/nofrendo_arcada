@@ -31,12 +31,6 @@ AudioConnection   patchCord2(mymixer, 0, audioOut, 1);
 #define SAVEMENU_EXIT       4
 const char *savemenu_strings[SAVEMENU_SELECTIONS] = {"Continue", "Save", "Reload Save", "Save & Exit", "Exit"};
 
-#define LOADMENU_SELECTIONS 3
-#define LOADMENU_LOADSAVED  0
-#define LOADMENU_LOADCLEAN  1
-#define LOADMENU_DELETEFILE 2
-const char *loadmenu_strings[LOADMENU_SELECTIONS] = {"Load Saved Game", "Start New Game", "Delete Save File"};
-
 #if EMU_SCALEDOWN == 1
   // Packed 16-big RGB palette (big-endian order)
   unsigned short palette16[PALETTE_SIZE];
@@ -191,7 +185,6 @@ void setup() {
   Serial.printf("Filesys & ROM folder initialized, %d files found\n", arcada.filesysListFiles());
 
   arcada.enableSpeaker(true);
-  emu_init();
   mymixer.start();
 
 #ifdef TIMER_LED

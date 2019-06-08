@@ -17,7 +17,7 @@
   #define USE_SRAM
 #elif defined(ADAFRUIT_PYGAMER_M4_EXPRESS) ||  defined(ADAFRUIT_PYBADGE_M4_EXPRESS)
   #define EMU_SCALEDOWN       2
-  //#define USE_FLASH_FOR_ROMSTORAGE       // slows it down, but bigger roms!
+  #define USE_FLASH_FOR_ROMSTORAGE       // slows it down, but bigger roms!
   #define DEFAULT_FLASH_ADDRESS (0x40000-2048)  // make sure this is after this programs memory, with unrolled loops we're at 222,192! we need a little more than 256KB since roms have 10 extra bytes
   #define USE_SAVEFILES
   #define USE_SRAM
