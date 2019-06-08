@@ -203,7 +203,7 @@ void emu_SaveState() {
 #endif
 }
 
-void emu_LoadState() {
+void emu_LoadState(char skipMenu) {
 #if defined(USE_SAVEFILES)
   char filename[512];
   strncpy(filename, rom_filename_path, 500);
@@ -214,11 +214,16 @@ void emu_LoadState() {
   fp[3] = 'v';
   fp[4] = 0;
   if (arcada.exists(filename)) {
+    if (skipMenu) {
+      state_load(filename);
+      return;
+    }
     Serial.println("Found savefile");
     tft.stop();
     delay(50);
+    uint8_t selected = 0;
     arcada.fillScreen(ARCADA_BLUE);
-    uint8_t selected = arcada.menu(loadmenu_strings, LOADMENU_SELECTIONS, ARCADA_WHITE, ARCADA_BLACK);
+    selected = arcada.menu(loadmenu_strings, LOADMENU_SELECTIONS, ARCADA_WHITE, ARCADA_BLACK);
     Serial.printf("Selected %d\n", selected);
     if (selected ==  LOADMENU_LOADSAVED) {
       Serial.print("Loading state from file:");

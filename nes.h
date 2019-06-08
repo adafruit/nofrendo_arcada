@@ -33,6 +33,7 @@
 #include "nes_rom.h"
 #include "nes6502.h"
 #include "bitmap.h"
+#include "emuapi.h"
 
 /* Visible (NTSC) screen height */
 #ifndef NES_VISIBLE_HEIGHT

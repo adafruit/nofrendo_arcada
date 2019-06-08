@@ -353,7 +353,7 @@ void nes_emulate(void)
        system_video(true);
    }
 
-   emu_LoadState();
+   emu_LoadState(false);
 
 #ifdef NOLOOP
 #else   

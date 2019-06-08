@@ -104,7 +104,7 @@ static void main_step() {
         arcada.fillScreen(ARCADA_BLUE);
         arcada.infoBox("Loading game state...", 0);
         delay(100);
-        emu_LoadState();
+        emu_LoadState(true);
         arcada.fillScreen(ARCADA_BLACK);
       }
       // save, reload or just continue
