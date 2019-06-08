@@ -503,7 +503,7 @@ int state_load(const char* fn)
          break;
 
       case SNSS_SRAM:
-	//load_sramblock(machine, snssFile);
+	load_sramblock(machine, snssFile);
          break;
 
       case SNSS_MPRD:
