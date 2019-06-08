@@ -329,10 +329,6 @@ static void nes_renderframe(bool draw_flag)
 
 static void system_video(bool draw)
 {
-
-#ifdef NOLOOP
-#else   
-#endif
    /* blit to screen */
    vid_flush();
 
@@ -341,15 +337,21 @@ static void system_video(bool draw)
 }
 
 /* main emulation loop */
-static int last_ticks, frames_to_render;
 void nes_emulate(void)
 {
+  int last_ticks, frames_to_render;
    osd_setsound(nes.apu->process);
 
    last_ticks = nofrendo_ticks;
    frames_to_render = 0;
    nes.scanline_cycles = 0;
    nes.fiq_cycles = (int) NES_FIQ_PERIOD;
+
+   for (int i = 0; i < 4; ++i)
+   {
+       nes_renderframe(true);
+       system_video(true);
+   }
 
    emu_LoadState();
 
@@ -465,16 +467,20 @@ void nes_togglepause(void)
 int nes_insertcart(const char *filename, nes_t *machine)
 {
    nes6502_setcontext(machine->cpu);
+
    /* rom file */
    machine->rominfo = rom_load(filename);
    if (NULL == machine->rominfo)
       goto _fail;
+
    /* map cart's SRAM to CPU $6000-$7FFF */
    if (machine->rominfo->sram)
    {
       machine->cpu->mem_page[6] = machine->rominfo->sram;
       machine->cpu->mem_page[7] = machine->rominfo->sram + 0x1000;
    } 
+
+
    /* mapper */
    machine->mmc = mmc_create(machine->rominfo);
    if (NULL == machine->mmc)
@@ -483,9 +489,14 @@ int nes_insertcart(const char *filename, nes_t *machine)
    /* if there's VRAM, let the PPU know */
    if (NULL != machine->rominfo->vram)
       machine->ppu->vram_present = true; 
+
    apu_setext(machine->apu, machine->mmc->intf->sound_ext);
+
    build_address_handlers(machine);
+
+
    nes_setcontext(machine);
+
    nes_reset(HARD_RESET); 
    
    return 0;
@@ -511,9 +522,9 @@ nes_t *nes_create(void)
 
    /* bitmap */
    /* 8 pixel overdraw */
-//   machine->vidbuf = bmp_create(NES_SCREEN_WIDTH, NES_SCREEN_HEIGHT, 8);
-//   if (NULL == machine->vidbuf)
-//      goto _fail;
+   //   machine->vidbuf = bmp_create(NES_SCREEN_WIDTH, NES_SCREEN_HEIGHT, 8);
+   //   if (NULL == machine->vidbuf)
+   //      goto _fail;
 
    machine->autoframeskip = true;
 
