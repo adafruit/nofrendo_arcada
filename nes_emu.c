@@ -26,7 +26,7 @@
 
 
 char configfilename[]="na";
-char romname[64];
+char romname[128];
 char* romdata=NULL;
 
 /* This is os-specific part of main() */
@@ -73,6 +73,7 @@ void osd_setsound(void (*playfunc)(void *buffer, int length))
    audio_callback = playfunc;
 #endif
 }
+
 
 static void osd_stopsound(void)
 {
@@ -267,7 +268,11 @@ void nes_Step(void)
 
 void nes_Start(char * filename)
 {
-  strcpy(romname,filename);
+  strncpy(romname, filename, sizeof(romname));
+
+#if defined(USE_FLASH_FOR_ROMSTORAGE)
+  romdata = (char*)emu_LoadROM(filename);
+#else
   int romsize = emu_FileSize(filename); 
   romdata = (char*)emu_Malloc(romsize);
   if (romdata)
@@ -281,10 +286,13 @@ void nes_Start(char * filename)
       romdata = NULL;
     }  
   }
-  
-	//romdata = (char*)emu_LoadROM(filename);
+#endif
 }
 
 void nes_End(void) {
-
+#if !defined(USE_FLASH_FOR_ROMSTORAGE)
+  if (romdata) {
+    emu_Free(romdata);
+  }
+#endif
 }

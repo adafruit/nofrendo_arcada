@@ -103,13 +103,13 @@ static void map160_init(void)
    irq.latch_c003 = irq.latch_c005 = 0;
 }
 
-static map_memwrite map160_memwrite[] =
+static const map_memwrite map160_memwrite[] =
 {
    { 0x8000, 0xFFFF, map160_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map160_intf =
+const mapintf_t map160_intf =
 {
    160, /* mapper number */
    "Aladdin (pirate)", /* mapper name */

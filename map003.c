@@ -33,13 +33,13 @@ static void map3_write(uint32 address, uint8 value)
    mmc_bankvrom(8, 0x0000, value);
 }
 
-static map_memwrite map3_memwrite[] =
+static const map_memwrite map3_memwrite[] =
 {
    { 0x8000, 0xFFFF, map3_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map3_intf =
+const mapintf_t map3_intf =
 {
    3, /* mapper number */
    "CNROM", /* mapper name */

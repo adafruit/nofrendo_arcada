@@ -7,18 +7,18 @@
 #include <Adafruit_Arcada.h>
 extern Adafruit_Arcada arcada;
 extern volatile bool test_invert_screen;
-
+#include "emuapi.h"
 #include "display_dma.h"
-#if defined(USE_SPI_DMA)
-  #error("Must not have SPI DMA enabled in Adafruit_SPITFT.h")
-#endif
+//#if defined(USE_SPI_DMA)
+//  #error("Must not have SPI DMA enabled in Adafruit_SPITFT.h")
+//#endif
 
 #include <Adafruit_ZeroDMA.h>
 #include "wiring_private.h"  // pinPeripheral() function
 #include <malloc.h>          // memalign() function
 
-// Actually 50 MHz due to timer shenanigans below, but SPI lib still thinks it's 24 MHz
-#define SPICLOCK 24000000
+// Fastest we can go with ST7735 and 100MHz periph clock:
+#define SPICLOCK 25000000
 
 Adafruit_ZeroDMA dma;                  ///< DMA instance
 DmacDescriptor  *dptr         = NULL;  ///< 1st descriptor
@@ -34,6 +34,9 @@ volatile uint8_t ntransfer = 0;
 Display_DMA *foo; // Pointer into class so callback can access stuff
 
 static bool setDmaStruct() {
+  // Switch screen SPI to faster peripheral clock
+  ARCADA_TFT_SPI.setClockSource(SERCOM_CLOCK_SOURCE_100M);
+
   if (dma.allocate() != DMA_STATUS_OK) { // Allocate channel
     Serial.println("Couldn't allocate DMA");
     return false;
@@ -115,7 +118,7 @@ void Display_DMA::refresh(void) {
   digitalWrite(ARCADA_TFT_CS, 1);
   ARCADA_TFT_SPI.endTransaction();  
 
-  fillScreen(ARCADA_CYAN);
+  fillScreen(ARCADA_BLACK);
   if (screen == NULL) {
     Serial.println("No screen framebuffer!");
     return;
@@ -145,8 +148,8 @@ void Display_DMA::refresh(void) {
 
   Serial.print("DMA kick");
 
-  dma.startJob();                // Trigger first SPI DMA transfer
   dma.loop(true);
+  dma.startJob();                // Trigger first SPI DMA transfer
   paused = false; 
 }
 
@@ -183,117 +186,63 @@ void Display_DMA::fillScreen(uint16_t color) {
   }
 }
 
+#if EMU_SCALEDOWN == 1
 
-void Display_DMA::writeScreen(int width, int height, int stride, uint8_t *buf, uint16_t *palette16) {
-  uint8_t *buffer=buf;
-  uint8_t *src; 
-  if (screen != NULL) {
-  uint16_t *dst = &screen[0];
-    int i,j;
-    if (width*2 <= EMUDISPLAY_WIDTH) {
-      for (j=0; j<height; j++)
-      {
-        src=buffer;
-        for (i=0; i<width; i++)
-        {
-          uint16_t val = palette16[*src++];
-          *dst++ = val;
-          *dst++ = val;
-        }
-        dst += (EMUDISPLAY_WIDTH-width*2);
-        if (height*2 <= EMUDISPLAY_HEIGHT) {
-          src=buffer;
-          for (i=0; i<width; i++)
-          {
-            uint16_t val = palette16[*src++];
-            *dst++ = val;
-            *dst++ = val;
-          }
-          dst += (EMUDISPLAY_WIDTH-width*2);      
-        } 
-        buffer += stride;      
-      }
+void Display_DMA::writeLine(int width, int height, int stride, uint8_t *buf, uint16_t *palette16) {
+  uint16_t *dst = &screen[EMUDISPLAY_WIDTH*stride];
+  while(width--) *dst++ = palette16[*buf++]; // palette16 already byte-swapped
+}
+
+#elif EMU_SCALEDOWN == 2
+
+static uint8_t last_line[NATIVE_WIDTH];
+
+void Display_DMA::writeLine(int width, int height, int stride, uint8_t *buf, uint32_t *paletteRB, uint16_t *paletteG) {
+  if(!(stride & 1)) {
+    // Even line number: just copy into last_line buffer for later
+    memcpy(last_line, buf, width);
+    // (Better still, if we could have nes_ppu.c render directly into
+    // alternating scanline buffers, we could avoid the memcpy(), but
+    // the EMU_SCALEDOWN definition doesn't reach there and it might
+    // require some ugly changes (or the right place to do this might
+    // be in nofrendo_arcada.ino). For now though, the memcpy() really
+    // isn't a huge burden in the bigger scheme.)
+  } else {
+    // Odd line number: average 2x2 pixels using last_line and buf.
+    uint8_t  *src1 = last_line, // Prior scanline
+             *src2 = buf;       // Current scanline
+    uint16_t *dst  = &screen[EMUDISPLAY_WIDTH*(stride-1)/2];
+    uint32_t  rb;
+    uint16_t  g, rgb;
+    uint8_t   idx0, idx1, idx2, idx3;
+    width /= 2;
+    while(width--) {
+      idx0 = *src1++; // Palette index of upper-left pixel
+      idx1 = *src2++; // Palette index of lower-left pixel
+      idx2 = *src1++; // Palette index of upper-right pixel
+      idx3 = *src2++; // Palette index of lower-right pixel
+      // Accumulate four RB and G values...
+      rb   = paletteRB[idx0] + paletteRB[idx1] +
+             paletteRB[idx2] + paletteRB[idx3]; // Accumulate R+B
+      g    = paletteG[idx0]  + paletteG[idx1]  +
+             paletteG[idx2]  + paletteG[idx3];  // Accumulate G
+      // RB pallette data is in the form 00RRRRRRRR000BBBBBBBB00000000000,
+      // so accumulating 4 pixels yields RRRRRRRRRR0BBBBBBBBBB00000000000.
+      // G palette data is in the form   0000000GGGGGGGG0,
+      // so accumulating 4 pixels yields 00000GGGGGGGGGG0.
+      // Hold my beer...
+      rgb  = ((rb >> 16) & 0b1111100000011111) |
+             ( g         & 0b0000011111100000);
+      // Preso!              RRRRRGGGGGGBBBBB
+      //if (test_invert_screen) rgb = ~rgb;
+      *dst++  = __builtin_bswap16(rgb); // Store big-endian
     }
-    else if (width <= EMUDISPLAY_WIDTH) {
-      dst += (EMUDISPLAY_WIDTH-width)/2;
-      for (j=0; j<height; j++)
-      {
-        src=buffer;
-        for (i=0; i<width; i++)
-        {
-          uint16_t val = palette16[*src++];
-          *dst++ = val;
-        }
-        dst += (EMUDISPLAY_WIDTH-width);
-        if (height*2 <= EMUDISPLAY_HEIGHT) {
-          src=buffer;
-          for (i=0; i<width; i++)
-          {
-            uint16_t val = palette16[*src++];
-            *dst++ = val;
-          }
-          dst += (EMUDISPLAY_WIDTH-width);
-        }      
-        buffer += stride;  
-      }
-    }    
   }
 }
 
-#if EMU_SCALEDOWN == 2
-  uint8_t last_even_line_red[NATIVE_WIDTH/2], last_even_line_green[NATIVE_WIDTH/2], last_even_line_blue[NATIVE_WIDTH/2];
-#endif
-
-void Display_DMA::writeLine(int width, int height, int stride, uint8_t *buf, uint16_t *palette16) {
-  uint8_t *src=buf;
-#if EMU_SCALEDOWN == 1
-  uint16_t *dst = &screen[EMUDISPLAY_WIDTH*stride];
-  for (int i=0; i<width; i++) {
-    uint8_t val = *src++;
-    *dst++=palette16[val];
-  }
-#elif EMU_SCALEDOWN == 2
-  uint8_t *red_p = last_even_line_red;
-  uint8_t *green_p = last_even_line_green;
-  uint8_t *blue_p = last_even_line_blue;
-  uint16_t color0, color1;
-  if (stride % 2 == 0) { 
-    for (int i=0; i<width/2; i++) {
-      // extract and store the averaged colors (takes memory but saves time!)
-      color0 = palette16[*src++];
-      color1 = palette16[*src++];
-      *blue_p++ = (color0 & 0x1F) + (color1 & 0x1F);
-      color0 >>= 5; color1 >>= 5;
-      *green_p++ = (color0 & 0x2F) + (color1  & 0x2F);
-      color0 >>= 6; color1 >>= 6;
-      *red_p++ = (color0 & 0x1F) + (color1 & 0x1F);
-    }
-  } else {
-    uint16_t *dst = &screen[EMUDISPLAY_WIDTH*(stride-1)/2]; // stride skipped every other line
-    for (int i=0; i<width/2; i++) {
-      color0 = palette16[*src++];
-      color1 = palette16[*src++];
-      uint16_t color;
-      uint8_t blue = *blue_p++ + (color0 & 0x1F) + (color1 & 0x1F);
-      blue >>= 2;
-      color0 >>= 5; color1 >>= 5;
-      uint8_t green = *green_p++ + (color0 & 0x2F) + (color1 & 0x2F);
-      green >>= 2;
-      color0 >>= 6; color1 >>= 6;
-      uint8_t red = *red_p++ + (color0 & 0x1F) + (color1 & 0x1F);;
-      red >>= 2;
-      
-      color = red; color <<= 6; // rejoin into a color
-      color |= green; color <<= 5;
-      color |= blue;
-      if (test_invert_screen) color = ~color;
-      *dst++=__builtin_bswap16(color);
-    }
-  }
 #else
   #error("Only scale 1 or 2 supported")
 #endif
-}
 
 inline void Display_DMA::setAreaCentered(void) {
   setArea((ARCADA_TFT_WIDTH  - EMUDISPLAY_WIDTH ) / 2, 

@@ -45,13 +45,13 @@ static void map231_write(uint32 address, uint8 value)
    mmc_bankvrom(8, 0x0000, vbank);
 }
 
-static map_memwrite map231_memwrite[] =
+static const map_memwrite map231_memwrite[] =
 {
    { 0x8000, 0xFFFF, map231_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map231_intf = 
+const mapintf_t map231_intf = 
 {
    231, /* mapper number */
    "NINA-07", /* mapper name */

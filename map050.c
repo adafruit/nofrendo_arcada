@@ -154,13 +154,13 @@ static void map50_getstate (SnssMapperBlock *state)
   return;
 }
 
-static map_memwrite map50_memwrite [] =
+static const map_memwrite map50_memwrite [] =
 {
    { 0x4000, 0x5FFF, map50_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map50_intf =
+const mapintf_t map50_intf =
 {
    50,                               /* Mapper number */
    "SMB2j (3rd discovered variant)", /* Mapper name */

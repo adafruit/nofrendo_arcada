@@ -47,13 +47,13 @@ static void map34_write(uint32 address, uint8 value)
    }
 }
 
-static map_memwrite map34_memwrite[] = 
+static const map_memwrite map34_memwrite[] = 
 {
    { 0x7FFD, 0xFFFF, map34_write },
    { -1, -1, NULL }
 };
 
-mapintf_t map34_intf = 
+const mapintf_t map34_intf = 
 {
    34, /* mapper number */
    "Nina-1", /* mapper name */

@@ -31,6 +31,7 @@
 #include "nes_rom.h"
 #include "nes_mmc.h"
 #include "nes_ppu.h"
+#include "emuapi.h"
 #include "nes.h"
 #include "log.h"
 #include "osd.h"
@@ -70,6 +71,97 @@ typedef struct inesheader_s
 #define  VRAM_BANK_LENGTH  0x2000
 
 
+/* Save battery-backed RAM */
+static void rom_savesram(rominfo_t *rominfo)
+{
+  // TODO - add battery backup support!
+
+  emu_printf("SRAM save not yet supported");
+  /*
+   FILE *fp;
+   char fn[PATH_MAX + 1];
+
+   ASSERT(rominfo);
+
+   if (rominfo->flags & ROM_FLAG_BATTERY)
+   {
+      strncpy(fn, rominfo->filename, PATH_MAX);
+      osd_newextension(fn, ".sav");
+
+      fp = fopen(fn, "wb");
+      if (NULL != fp)
+      {
+         fwrite(rominfo->sram, SRAM_BANK_LENGTH, rominfo->sram_banks, fp);
+         fclose(fp);
+         log_printf("Wrote battery RAM to %s.\n", fn);
+      }
+   }
+  */
+}
+
+/* Load battery-backed RAM from disk */
+static void rom_loadsram(rominfo_t *rominfo)
+{
+  // TODO - add battery backup support!
+  emu_printf("SRAM load not yet supported");
+
+  /*
+   FILE *fp;
+   char fn[PATH_MAX + 1];
+
+   ASSERT(rominfo);
+
+   if (rominfo->flags & ROM_FLAG_BATTERY)
+   {
+      strncpy(fn, rominfo->filename, PATH_MAX);
+      osd_newextension(fn, ".sav");
+
+      fp = fopen(fn, "rb");
+      if (NULL != fp)
+      {
+         fread(rominfo->sram, SRAM_BANK_LENGTH, rominfo->sram_banks, fp);
+         fclose(fp);
+         log_printf("Read battery RAM from %s.\n", fn);
+      }
+   }
+  */
+}
+
+/* Allocate space for SRAM */
+static int rom_allocsram(rominfo_t *rominfo)
+{
+#ifdef USE_SRAM
+   /* Load up SRAM */
+   emu_printf("Alloc. SRAM");
+   rominfo->sram = emu_Malloc(SRAM_BANK_LENGTH * rominfo->sram_banks);
+   if (NULL == rominfo->sram)
+   {
+      emu_Halt("Could not allocate space for battery RAM");
+   }
+
+   /* make damn sure SRAM is clear */
+   memset(rominfo->sram, 0, SRAM_BANK_LENGTH * rominfo->sram_banks);
+#else
+   rominfo->sram = NULL;
+#endif
+   return 0;
+}
+
+/* If there's a trainer, load it in at $7000 */
+static void rom_loadtrainer(unsigned char **rom, rominfo_t *rominfo)
+{
+   ASSERT(rom);
+   ASSERT(rominfo);
+
+   if (rominfo->flags & ROM_FLAG_TRAINER)
+   {
+//      fread(rominfo->sram + TRAINER_OFFSET, TRAINER_LENGTH, 1, fp);
+      memcpy(rominfo->sram + TRAINER_OFFSET, *rom, TRAINER_LENGTH);
+      rom+=TRAINER_LENGTH;
+      emu_printf("Read in trainer at $7000\n");
+   }
+}
+
 
 
 
@@ -89,6 +181,7 @@ static int rom_loadrom(unsigned char **rom, rominfo_t *rominfo)
    }
    else
    {
+      emu_printf("Alloc VRAM");
       rominfo->vram = emu_Malloc(VRAM_LENGTH);
       if (NULL == rominfo->vram)
       {
@@ -100,14 +193,14 @@ static int rom_loadrom(unsigned char **rom, rominfo_t *rominfo)
 }
 
 
-static int *rom_findrom(const char *filename, rominfo_t *rominfo)
+static int rom_findrom(const char *filename, rominfo_t *rominfo)
 {
    int fp;
 
    ASSERT(rominfo);
 
    if (NULL == filename)
-      return NULL;
+      return 0;
 
    /* Make a copy of the name so we can extend it */
    osd_fullname(rominfo->filename, filename);
@@ -139,11 +232,11 @@ int rom_checkmagic(const char *filename)
    rominfo_t rominfo;
    int fp;
 
-   fp = rom_findrom(filename, &rominfo);
+   fp = (int)rom_findrom(filename, &rominfo);
    if (0 == fp)
       return -1;
 
-   emu_FileRead(&head, 1*sizeof(head));
+   emu_FileRead((uint8_t *)&head, 1*sizeof(head));
 
    emu_FileClose();
 
@@ -175,6 +268,7 @@ static int rom_getheader(unsigned char **rom, rominfo_t *rominfo)
 
    if (memcmp(head.ines_magic, ROM_INES_MAGIC, 4))
    {
+     emu_Halt("Not a valid ROM image");
       return -1;
    }
 
@@ -273,24 +367,42 @@ rominfo_t *rom_load(const char *filename)
    unsigned char *rom=(unsigned char*)osd_getromdata();
    rominfo_t *rominfo;
 
+   emu_printf("Alloc ROMinfo");
    rominfo = emu_Malloc(sizeof(rominfo_t));
    if (NULL == rominfo)
       return NULL;
 
    memset(rominfo, 0, sizeof(rominfo_t));
+   strncpy(rominfo->filename, filename, sizeof(rominfo->filename));
+   emu_printf("rom_load: rominfo->filename\n");
 
    /* Get the header and stick it into rominfo struct */
-	if (rom_getheader(&rom, rominfo))
+   if (rom_getheader(&rom, rominfo))
       goto _fail;
 
    /* Make sure we really support the mapper */
    if (false == mmc_peek(rominfo->mapper_number))
    {
+      emu_Halt("Mapper not yet implemented");
       goto _fail;
    }
 
-	if (rom_loadrom(&rom, rominfo))
+
+   /* iNES format doesn't tell us if we need SRAM, so
+   ** we have to always allocate it -- bleh!
+   ** UNIF, TAKE ME AWAY!  AAAAAAAAAA!!!
+   */
+   if (rom_allocsram(rominfo))
       goto _fail;
+
+   rom_loadtrainer(&rom, rominfo);
+
+   if (rom_loadrom(&rom, rominfo))
+      goto _fail;
+
+   rom_loadsram(rominfo);
+
+   emu_printf("ROM loaded");
 
    return rominfo;
 
@@ -304,6 +416,7 @@ void rom_free(rominfo_t **rominfo)
 {
    if (NULL == *rominfo)
    {
+      emu_printf("ROM not loaded");
       return;
    }
 
@@ -315,17 +428,19 @@ void rom_free(rominfo_t **rominfo)
       log_printf("Default NES palette restored\n");
    }
 
+   rom_savesram(*rominfo);
 
    if ((*rominfo)->sram)
-      free((*rominfo)->sram);
+      emu_Free((*rominfo)->sram);
    if ((*rominfo)->rom)
-      free((*rominfo)->rom);
+      emu_Free((*rominfo)->rom);
    if ((*rominfo)->vrom)
-      free((*rominfo)->vrom);
+      emu_Free((*rominfo)->vrom);
    if ((*rominfo)->vram)
-      free((*rominfo)->vram);
+      emu_Free((*rominfo)->vram);
 
-   free(*rominfo);
+   emu_Free(*rominfo);
+   emu_printf("ROM freed");
 }
 
 /*

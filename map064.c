@@ -173,13 +173,13 @@ static void map64_init(void)
    irq.reset = irq.enabled = false;
 }
 
-static map_memwrite map64_memwrite[] =
+static const map_memwrite map64_memwrite[] =
 {
    { 0x8000, 0xFFFF, map64_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map64_intf =
+const mapintf_t map64_intf =
 {
    64, /* mapper number */
    "Tengen RAMBO-1", /* mapper name */

@@ -87,13 +87,13 @@ static void map33_write(uint32 address, uint8 value)
 }
 
 
-static map_memwrite map33_memwrite[] =
+static const map_memwrite map33_memwrite[] =
 {
    { 0x8000, 0xFFFF, map33_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map33_intf =
+const mapintf_t map33_intf =
 {
    33, /* mapper number */
    "Taito TC0190", /* mapper name */

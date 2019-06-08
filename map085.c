@@ -150,7 +150,7 @@ static void map85_hblank(int vblank)
    }
 }
 
-static map_memwrite map85_memwrite[] =
+static const map_memwrite map85_memwrite[] =
 {
    { 0x8000, 0xFFFF, map85_write },
    {     -1,     -1, NULL }
@@ -168,7 +168,7 @@ static void map85_init(void)
    irq.enabled = false;
 }
 
-mapintf_t map85_intf = 
+const mapintf_t map85_intf = 
 {
    85, /* mapper number */
    "Konami VRC7", /* mapper name */

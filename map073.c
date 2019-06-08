@@ -135,13 +135,13 @@ static void map73_getstate (SnssMapperBlock *state)
   return;
 }
 
-static map_memwrite map73_memwrite [] =
+static const map_memwrite map73_memwrite [] =
 {
    { 0x8000, 0xFFFF, map73_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map73_intf =
+const mapintf_t map73_intf =
 {
    73,                               /* Mapper number */
    "Konami VRC3",                    /* Mapper name */

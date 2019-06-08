@@ -23,9 +23,9 @@
 ** $Id: log.c,v 1.2 2001/04/27 14:37:11 neil Exp $
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
+#include "stdlib.h"
+#include "stdio.h"
+#include "stdarg.h"
 #include "noftypes.h"
 #include "log.h"
 
@@ -33,6 +33,62 @@
 //static FILE *errorlog = NULL;
 static int (*log_func)(const char *string) = NULL;
 
+/* first up: debug versions of calls */
+#ifdef NOFRENDO_DEBUG
+int log_init(void)
+{
+//   errorlog = fopen("errorlog.txt", "wt");
+//   if (NULL == errorlog)
+//      return (-1);
+
+   return 0;
+}
+
+void log_shutdown(void)
+{
+   /* Snoop around for unallocated blocks */
+   mem_checkblocks();
+   mem_checkleaks();
+   mem_cleanup();
+
+//   if (NULL != errorlog)
+//      fclose(errorlog);
+}
+
+int log_print(const char *string)
+{
+   /* if we have a custom logging function, use that */
+   if (NULL != log_func)
+      log_func(string);
+   
+   /* Log it to disk, as well */
+//   fputs(string, errorlog);
+//	printf("%s\n", string);
+
+   return 0;
+}
+
+int log_printf(const char *format, ... )
+{
+   /* don't allocate on stack every call */
+   static char buffer[1024 + 1];
+   va_list arg;
+
+   va_start(arg, format);
+
+   if (NULL != log_func)
+   {
+      vsprintf(buffer, format, arg);
+      log_func(buffer);
+   }
+
+//   vfprintf(errorlog, format, arg);
+   va_end(arg);
+
+   return 0; /* should be number of chars written */
+}
+
+#else /* !NOFRENDO_DEBUG */
 
 int log_init(void)
 {
@@ -56,6 +112,7 @@ int log_printf(const char *format, ... )
 
    return 0; /* should be number of chars written */
 }
+#endif /* !NOFRENDO_DEBUG */
 
 void log_chain_logfunc(int (*func)(const char *string))
 {

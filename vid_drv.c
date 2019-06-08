@@ -31,12 +31,12 @@
 #include "osd.h"
 
 /* hardware surface */
-static bitmap_t *screen = NULL;
+bitmap_t *screen = NULL;
 
 /* primary / backbuffer surfaces */
-static bitmap_t *primary_buffer = NULL; //, *back_buffer = NULL;
+bitmap_t *primary_buffer = NULL; //, *back_buffer = NULL;
 
-static viddriver_t *driver = NULL;
+viddriver_t *driver = NULL;
 
 /* fast automagic loop unrolling */
 #define  DUFFS_DEVICE(transfer, count) \
@@ -334,7 +334,7 @@ INLINE int calc_dirties(rect_t *list)
 
 void vid_flush(void)
 {
-   bitmap_t *temp;
+  //bitmap_t *temp;
    int num_dirties;
    rect_t dirty_rects[MAX_DIRTIES];
 

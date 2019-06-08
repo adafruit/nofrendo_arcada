@@ -17,11 +17,6 @@
 
 #define DMA_FULL 1
 
-#if ARCADA_TFT_WIDTH == 320
-  // we assume this is an ILI9341, and ST7735's dont like overclocked SPI
-  #define HIGH_SPEED_SPI
-#endif
-
 #define RGBVAL32(r,g,b)  ( (r<<16) | (g<<8) | b )
 #define RGBVAL16(r,g,b)  ( (((r>>3)&0x1f)<<11) | (((g>>2)&0x3f)<<5) | (((b>>3)&0x1f)<<0) )
 #define RGBVAL8(r,g,b)   ( (((r>>5)&0x07)<<5) | (((g>>5)&0x07)<<2) | (((b>>6)&0x3)<<0) )
@@ -32,7 +27,6 @@
 
 #define NATIVE_WIDTH      256
 #define NATIVE_HEIGHT     240
-#define EMU_SCALEDOWN       2
 #define EMUDISPLAY_WIDTH   (NATIVE_WIDTH / EMU_SCALEDOWN)
 #define EMUDISPLAY_HEIGHT  (NATIVE_HEIGHT / EMU_SCALEDOWN)
 
@@ -58,8 +52,14 @@ class Display_DMA
     void setArea(uint16_t x1,uint16_t y1,uint16_t x2,uint16_t y2); 
     void setAreaCentered(void);
 
+#if 0 // NOT CURRENTLY BEING USED IN NOFRENDO. See notes in display_dma.cpp.
     void writeScreen(int width, int height, int stride, uint8_t *buffer, uint16_t *palette16);
+#endif
+#if EMU_SCALEDOWN == 1
     void writeLine(int width, int height, int stride, uint8_t *buffer, uint16_t *palette16);
+#elif EMU_SCALEDOWN == 2
+    void writeLine(int width, int height, int stride, uint8_t *buffer, uint32_t *paletteRB, uint16_t *paletteG);
+#endif
 	  void fillScreen(uint16_t color);
 	  void writeScreen(const uint16_t *pcolors);
 	  void drawPixel(int16_t x, int16_t y, uint16_t color);

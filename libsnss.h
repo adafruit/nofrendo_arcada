@@ -315,7 +315,6 @@ typedef struct _SnssSoundBlock
 
 typedef struct _SNSS_FILE
 {
-   FILE *fp;
    SNSS_OPEN_MODE mode;
    SnssFileHeader headerBlock;
    SnssBaseBlock baseBlock;

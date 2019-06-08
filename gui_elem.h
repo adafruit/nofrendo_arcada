@@ -17,49 +17,52 @@
 ** must bear this legend.
 **
 **
-** nes_pal.h
+** gui_elem.h
 **
-** NES palette definition
-** $Id: nes_pal.h,v 1.1.1.1 2001/04/27 07:03:54 neil Exp $
+** GUI elements (font, mouse pointer, etc.)
+** $Id: gui_elem.h,v 1.1.1.1 2001/04/27 07:03:54 neil Exp $
 */
 
-#ifndef _NESPAL_H_
-#define _NESPAL_H_
+#ifndef _GUI_ELEM_H_
+#define _GUI_ELEM_H_
 
-extern rgb_t nes_palette[];
-extern const rgb_t shady_palette[];
+typedef struct fontchar_s
+{
+   uint8 lines[6];
+   uint8 spacing;
+} fontchar_t;
 
-extern void pal_generate(void);
+typedef struct font_s
+{
+   const fontchar_t *character;
+   uint8 height;
+} font_t;
 
-/* TODO: these are temporary hacks */
-extern void pal_dechue(void);
-extern void pal_inchue(void);
-extern void pal_dectint(void);
-extern void pal_inctint(void);
+extern font_t small;
 
-#endif /* _NESPAL_H_ */
+#define  CURSOR_WIDTH   11
+#define  CURSOR_HEIGHT  19
+
+extern const uint8 cursor_color[];
+extern const uint8 cursor[];
+
+#endif /* _GUI_ELEM_H_ */
 
 /*
-** $Log: nes_pal.h,v $
+** $Log: gui_elem.h,v $
 ** Revision 1.1.1.1  2001/04/27 07:03:54  neil
 ** initial
 **
-** Revision 1.1  2000/10/24 12:20:28  matt
-** changed directory structure
+** Revision 1.7  2000/10/10 13:03:54  matt
+** Mr. Clean makes a guest appearance
 **
-** Revision 1.8  2000/07/31 04:27:59  matt
+** Revision 1.6  2000/07/31 04:28:46  matt
 ** one million cleanups
 **
-** Revision 1.7  2000/07/21 04:20:35  matt
-** added some nasty externs
+** Revision 1.5  2000/07/17 01:52:27  matt
+** made sure last line of all source files is a newline
 **
-** Revision 1.6  2000/07/10 13:49:32  matt
-** renamed my palette and extern'ed it
-**
-** Revision 1.5  2000/07/05 17:14:34  neil
-** Linux: Act Two, Scene One
-**
-** Revision 1.4  2000/06/09 15:12:26  matt
+** Revision 1.4  2000/06/09 15:12:25  matt
 ** initial revision
 **
 */

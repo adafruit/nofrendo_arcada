@@ -31,11 +31,11 @@
 
 
 /* pointer to our current system's event handler table */
-static event_t *system_events = NULL;
+event_t *system_events = NULL;
 
 /* standard keyboard input */
-static nesinput_t kb_input = { INP_JOYPAD0, 0 };
-static nesinput_t kb_alt_input = { INP_JOYPAD1, 0 };
+nesinput_t kb_input = { INP_JOYPAD0, 0 };
+nesinput_t kb_alt_input = { INP_JOYPAD1, 0 };
 
 
 
@@ -122,7 +122,7 @@ static void func_event_joypad2_right(int code)
 
 
 /* NES events */
-static event_t nes_events[] =
+event_t nes_events[] =
 {
    NULL, /* 0 */
    NULL,
@@ -208,7 +208,7 @@ static event_t nes_events[] =
    /* last */
    NULL
 };
-static event_t *event_system_table[NUM_SUPPORTED_SYSTEMS] =
+event_t *event_system_table[NUM_SUPPORTED_SYSTEMS] =
 {
    NULL, /* unknown */
    NULL, /* autodetect */

@@ -89,13 +89,13 @@ static void map15_init(void)
    mmc_bankrom(32, 0x8000, 0);
 }
 
-static map_memwrite map15_memwrite[] =
+static const map_memwrite map15_memwrite[] =
 {
    { 0x8000, 0xFFFF, map15_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map15_intf =
+const mapintf_t map15_intf =
 {
    15, /* mapper number */
    "Contra 100-in-1", /* mapper name */

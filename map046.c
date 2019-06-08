@@ -114,13 +114,13 @@ static void map46_getstate (SnssMapperBlock *state)
   return;
 }
 
-static map_memwrite map46_memwrite [] =
+static const map_memwrite map46_memwrite [] =
 {
    { 0x6000, 0xFFFF, map46_write },
    {     -1,     -1, NULL }
 };
 
-mapintf_t map46_intf =
+const mapintf_t map46_intf =
 {
    46,                               /* Mapper number */
    "Pelican Game Station",           /* Mapper name */
