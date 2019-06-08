@@ -1,3 +1,6 @@
+#include  <errno.h>
+#include  <sys/unistd.h> // STDOUT_FILENO, STDERR_FILENO
+
 #include "display_dma.h"
 #include <Adafruit_Arcada.h>
 extern Adafruit_Arcada arcada;
@@ -18,8 +21,6 @@ static File file;
 #define LOADMENU_DELETEFILE 2
 const char *loadmenu_strings[LOADMENU_SELECTIONS] = {"Load Saved Game", "Start New Game", "Delete Save File"};
 
-
-
 void emu_Halt(const char * error_msg) {
   Serial.println(error_msg);
   tft.stop();
@@ -27,19 +28,15 @@ void emu_Halt(const char * error_msg) {
   arcada.haltBox(error_msg);
 }
 
-void emu_printf(const char *str)
+void emu_printf(const char format[], ...)
 {
-  Serial.println(str);
-}
+    char s[255];
 
-void emu_printf(int val)
-{
-  Serial.println(val);
-}
-
-void emu_printi(int val)
-{
-  Serial.println(val);
+    va_list ap;
+    va_start(ap, format);
+    vsnprintf(s, sizeof(s), format, ap);
+    Serial.print(s);
+    va_end(ap);
 }
 
 void * emu_Malloc(int size)
@@ -127,9 +124,7 @@ int emu_FileSize(char * filename)
 
   if (file = arcada.open(filename, O_READ))
   {
-    emu_printf("filesize is...");
-    filesize = file.fileSize();
-    emu_printf(filesize);
+    emu_printf("filesize is...%d\n", file.fileSize());
     file.close();
   }
 
@@ -145,12 +140,11 @@ int emu_FileSeek(int pos)
 int emu_LoadFile(char * filename, char * buf, int numbytes) {
   int filesize = 0;
 
-  emu_printf("LoadFile...");
-  emu_printf(filename);
+  emu_printf("LoadFile %s...", filename);
 
   if (file = arcada.open(filename, O_READ)) {
     filesize = file.fileSize();
-    emu_printf(filesize);
+    emu_printf("Size %d\n", filesize);
     if (numbytes >= filesize)
     {
       if (file.read(buf, filesize) != filesize) {
@@ -166,13 +160,12 @@ int emu_LoadFile(char * filename, char * buf, int numbytes) {
 int emu_LoadFileSeek(char * filename, char * buf, int numbytes, int pos) {
   int filesize = 0;
 
-  emu_printf("LoadFileSeek...");
-  emu_printf(filename);
+  emu_printf("LoadFileSeek...%s\n", filename);
 
   if (file = arcada.open(filename, O_READ))
   {
     file.seek(pos);
-    emu_printf(numbytes);
+    emu_printf("Reading %d bytes\n", numbytes);
     if (file.read(buf, numbytes) != numbytes) {
       emu_printf("File read failed");
     }

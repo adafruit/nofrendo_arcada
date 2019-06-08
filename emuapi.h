@@ -1,6 +1,7 @@
 #ifndef EMUAPI_H
 #define EMUAPI_H
 #include <stdint.h>
+#include <stdio.h>
 
 #define HAS_SND     1
 #define CUSTOM_SND  1
@@ -34,8 +35,7 @@
 #define SINGLELINE_RENDERING 1
 
 extern void emu_init(void);
-extern void emu_printf(const char *str);
-extern void emu_printi(int val);
+extern void emu_printf(const char *format, ...);
 extern void * emu_Malloc(int size);
 extern void emu_Free(void * pt);
 extern uint8_t *emu_LoadROM(char *filename);

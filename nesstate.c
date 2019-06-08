@@ -62,7 +62,7 @@ void state_setslot(int slot)
 
 int save_baseblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    emu_printf("save_baseblock\n");
+   emu_printf("save_baseblock\n");
    int i;
 
    ASSERT(state);
@@ -114,7 +114,7 @@ bool save_vramblock(nes_t *state, SNSS_FILE *snssFile)
 
    if (state->rominfo->vram_banks > 2)
    {
-      emu_printf("too many VRAM banks!\n");
+      emu_printf("too many VRAM banks! %d\n", state->rominfo->vram_banks);
       return -1;
    }
 
@@ -126,7 +126,7 @@ bool save_vramblock(nes_t *state, SNSS_FILE *snssFile)
 
 int save_sramblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    emu_printf("save_sramblock\n");
+   emu_printf("save_sramblock\n");
    int i;
    bool written = false;
    int sram_length;
@@ -153,7 +153,7 @@ int save_sramblock(nes_t *state, SNSS_FILE *snssFile)
 
    if (state->rominfo->sram_banks > 8)
    {
-      emu_printf("Unsupported number of SRAM banks\n");
+      emu_printf("Unsupported number of SRAM banks %d\n", state->rominfo->sram_banks);
       return -1;
    }
 
@@ -169,7 +169,7 @@ int save_sramblock(nes_t *state, SNSS_FILE *snssFile)
 
 int save_soundblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    emu_printf("save_soundblock\n");
+   emu_printf("save_soundblock\n");
    ASSERT(state);
 
    apu_getcontext(state->apu);
@@ -205,7 +205,7 @@ int save_soundblock(nes_t *state, SNSS_FILE *snssFile)
 
 int save_mapperblock(nes_t *state, SNSS_FILE *snssFile)
 {
-    emu_printf("save_mapperblock\n");
+   emu_printf("save_mapperblock\n");
    int i;
    ASSERT(state);
 
@@ -385,8 +385,7 @@ int state_save(const char* fn)
    emu_printf("Assert machine\n");
    ASSERT(machine);
 
-   emu_printf("state_save: fn=");
-   emu_printf(fn);
+   emu_printf("state_save: fn=%s\n", fn);
 
    /* open our state file for writing */
    status = SNSS_OpenFile(&snssFile, fn, SNSS_OPEN_WRITE);
@@ -445,8 +444,7 @@ int state_save(const char* fn)
    return 0;
 
 _error:
-   emu_printf("error: ");
-   emu_printf(SNSS_GetErrorString(status));
+   emu_printf("error: %s\n", SNSS_GetErrorString(status));
    SNSS_CloseFile(&snssFile);
    abort();
 }
@@ -479,8 +477,7 @@ int state_load(const char* fn)
 
 
    /* iterate through all present blocks */
-   emu_printf("state_load: snssFile->headerBlock.numberOfBlocks=");
-   emu_printi(snssFile->headerBlock.numberOfBlocks);
+   emu_printf("state_load: snssFile->headerBlock.numberOfBlocks=%d\n", snssFile->headerBlock.numberOfBlocks);
 
    for (i = 0; i < snssFile->headerBlock.numberOfBlocks; i++)
    {

@@ -14,7 +14,7 @@ extern "C" {
 
 Adafruit_Arcada arcada;
 Display_DMA tft = Display_DMA();
-
+extern Adafruit_ZeroDMA dma;
 
 #include "AudioPlaySystem.h"
 
@@ -83,7 +83,7 @@ static void main_step() {
 
   if (button_CurState & (ARCADA_BUTTONMASK_START | ARCADA_BUTTONMASK_SELECT)) {
     hold_start_select++;
-    if (hold_start_select == 100) {
+    if (hold_start_select == 50) {
       Serial.println("Quit!");
       tft.stop();
       delay(50);
@@ -135,6 +135,24 @@ static void main_step() {
     emu_Init(rom_filename_path);
     mymixer.start();
   } else {
+    int chan = dma.getChannel();
+    uint32_t chctrla = DMAC->Channel[chan].CHCTRLA.reg;
+    uint32_t chctrlb = DMAC->Channel[chan].CHCTRLB.reg;
+    uint32_t chstat = DMAC->Channel[chan].CHSTATUS.reg;
+    uint32_t pend = DMAC->PENDCH.reg;
+    uint32_t active = DMAC->ACTIVE.reg;
+    // DMA gets 'hung up' sometimes - we can detect and kick it :/
+    if (chstat == 3) {
+      Serial.printf("DMA pending 0x%08x active 0x%08x\n", pend, active);
+      Serial.printf("Channel %d - A=0x%08x B=0x%04x Stat=0x%04x\n", chan, chctrla, chctrlb, chstat);
+      Serial.println("Kicking DMA");
+      tft.stop();
+      mymixer.stop();
+      delay(50);
+      tft.refresh();
+      mymixer.start();
+    }
+    
     digitalWrite(EMUSTEP_LED, emu_toggle);
     emu_toggle = !emu_toggle;
     emu_Step();
@@ -183,7 +201,6 @@ void setup() {
   }
 
   Serial.printf("Filesys & ROM folder initialized, %d files found\n", arcada.filesysListFiles());
-
   arcada.enableSpeaker(true);
   mymixer.start();
 
