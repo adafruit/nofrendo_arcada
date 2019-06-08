@@ -118,7 +118,7 @@ void Display_DMA::refresh(void) {
   digitalWrite(ARCADA_TFT_CS, 1);
   ARCADA_TFT_SPI.endTransaction();  
 
-  fillScreen(ARCADA_CYAN);
+  fillScreen(ARCADA_BLACK);
   if (screen == NULL) {
     Serial.println("No screen framebuffer!");
     return;
