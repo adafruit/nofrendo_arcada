@@ -36,13 +36,11 @@ const char *savemenu_strings[SAVEMENU_SELECTIONS] = {"Continue", "Save", "Reload
   unsigned short palette16[PALETTE_SIZE];
 #elif EMU_SCALEDOWN == 2
   // Bizarro palette for 2x2 downsampling.
-  // Red and blue values both go into a 32-bit unsigned type, where
-  // bits 29:22 are red (8 bits) and bits 18:11 are blue (8 bits):
-  // 00RRRRRRRR000BBBBBBBB00000000000
-  uint32_t paletteRB[PALETTE_SIZE];
-  // Green goes into a 16-bit type, where bits 8:1 are green (8 bits):
-  // 0000000GGGGGGGG0
-  uint16_t paletteG[PALETTE_SIZE];
+  // Red, green and blue values go into a 32-bit unsigned type with gaps.
+  // Bits 29:22 are red (8 bits), bits 18:11 are blue (8 bits), and bits
+  // 8:1 are green (8 bits). RBG order and gap positions are intentional:
+  // 00RRRRRRRR000BBBBBBBB00GGGGGGGG0
+  uint32_t palette32[PALETTE_SIZE];
   // Later, bitwise shenanigans are used to accumulate 2x2 pixel colors
   // and shift/mask these into a 16-bit result.
 #else
@@ -236,10 +234,9 @@ void emu_SetPaletteEntry(unsigned char r, unsigned char g, unsigned char b, int 
 #if EMU_SCALEDOWN == 1
     palette16[index] = __builtin_bswap16(RGBVAL16(r,g,b));
 #elif EMU_SCALEDOWN == 2
-    // 00RRRRRRRR000BBBBBBBB00000000000
-    paletteRB[index] = ((uint32_t)r << 22) | ((uint32_t)b << 11);
-    // 0000000GGGGGGGG0
-    paletteG[index]  =  (uint16_t)g << 1;
+    // 00RRRRRRRR000BBBBBBBB00GGGGGGGG0
+    palette32[index] =
+      ((uint32_t)r << 22) | ((uint32_t)b << 11) | ((uint32_t)g << 1);
 #endif
   }
 }
@@ -263,7 +260,7 @@ void emu_DrawLine(unsigned char * VBuf, int width, int height, int line)
 #if EMU_SCALEDOWN == 1
   tft.writeLine(width, 1, line, VBuf, palette16);
 #elif EMU_SCALEDOWN == 2
-  tft.writeLine(width, 1, line, VBuf, paletteRB, paletteG);
+  tft.writeLine(width, 1, line, VBuf, palette32);
 #endif
 }  
 

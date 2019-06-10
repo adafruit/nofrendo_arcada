@@ -197,7 +197,7 @@ void Display_DMA::writeLine(int width, int height, int stride, uint8_t *buf, uin
 
 static uint8_t last_line[NATIVE_WIDTH];
 
-void Display_DMA::writeLine(int width, int height, int stride, uint8_t *buf, uint32_t *paletteRB, uint16_t *paletteG) {
+void Display_DMA::writeLine(int width, int height, int stride, uint8_t *buf, uint32_t *palette32) {
   if(!(stride & 1)) {
     // Even line number: just copy into last_line buffer for later
     memcpy(last_line, buf, width);
@@ -212,8 +212,8 @@ void Display_DMA::writeLine(int width, int height, int stride, uint8_t *buf, uin
     uint8_t  *src1 = last_line, // Prior scanline
              *src2 = buf;       // Current scanline
     uint16_t *dst  = &screen[EMUDISPLAY_WIDTH*(stride-1)/2];
-    uint32_t  rb;
-    uint16_t  g, rgb;
+    uint32_t  rbg32;
+    uint16_t  rgb16;
     uint8_t   idx0, idx1, idx2, idx3;
     width /= 2;
     while(width--) {
@@ -221,21 +221,16 @@ void Display_DMA::writeLine(int width, int height, int stride, uint8_t *buf, uin
       idx1 = *src2++; // Palette index of lower-left pixel
       idx2 = *src1++; // Palette index of upper-right pixel
       idx3 = *src2++; // Palette index of lower-right pixel
-      // Accumulate four RB and G values...
-      rb   = paletteRB[idx0] + paletteRB[idx1] +
-             paletteRB[idx2] + paletteRB[idx3]; // Accumulate R+B
-      g    = paletteG[idx0]  + paletteG[idx1]  +
-             paletteG[idx2]  + paletteG[idx3];  // Accumulate G
-      // RB pallette data is in the form 00RRRRRRRR000BBBBBBBB00000000000,
-      // so accumulating 4 pixels yields RRRRRRRRRR0BBBBBBBBBB00000000000.
-      // G palette data is in the form   0000000GGGGGGGG0,
-      // so accumulating 4 pixels yields 00000GGGGGGGGGG0.
+      // Accumulate four 'RBG' palette values...
+      rbg32 = palette32[idx0] + palette32[idx1] +
+              palette32[idx2] + palette32[idx3];
+      // Pallette data is in the form    00RRRRRRRR000BBBBBBBB00GGGGGGGG0
+      // so accumulating 4 pixels yields RRRRRRRRRR0BBBBBBBBBBGGGGGGGGGG0.
       // Hold my beer...
-      rgb  = ((rb >> 16) & 0b1111100000011111) |
-             ( g         & 0b0000011111100000);
-      // Preso!              RRRRRGGGGGGBBBBB
-      //if (test_invert_screen) rgb = ~rgb;
-      *dst++  = __builtin_bswap16(rgb); // Store big-endian
+      rbg32 &= 0b11111000000111110000011111100000; // Mask 5R, 5B, 6G
+      rgb16  = (uint16_t)((rbg32 >> 16) | rbg32);  // Merge high, low words
+      //if (test_invert_screen) rgb16 = ~rgb16;
+      *dst++ = __builtin_bswap16(rgb16);           // Store big-endian
     }
   }
 }

@@ -17,13 +17,7 @@
 
 #define DMA_FULL 1
 
-#define RGBVAL32(r,g,b)  ( (r<<16) | (g<<8) | b )
 #define RGBVAL16(r,g,b)  ( (((r>>3)&0x1f)<<11) | (((g>>2)&0x3f)<<5) | (((b>>3)&0x1f)<<0) )
-#define RGBVAL8(r,g,b)   ( (((r>>5)&0x07)<<5) | (((g>>5)&0x07)<<2) | (((b>>6)&0x3)<<0) )
-#define R16(rgb) ((rgb>>8)&0xf8) 
-#define G16(rgb) ((rgb>>3)&0xfc) 
-#define B16(rgb) ((rgb<<3)&0xf8) 
-
 
 #define NATIVE_WIDTH      256
 #define NATIVE_HEIGHT     240
@@ -58,7 +52,7 @@ class Display_DMA
 #if EMU_SCALEDOWN == 1
     void writeLine(int width, int height, int stride, uint8_t *buffer, uint16_t *palette16);
 #elif EMU_SCALEDOWN == 2
-    void writeLine(int width, int height, int stride, uint8_t *buffer, uint32_t *paletteRB, uint16_t *paletteG);
+    void writeLine(int width, int height, int stride, uint8_t *buffer, uint32_t *palette32);
 #endif
 	  void fillScreen(uint16_t color);
 	  void writeScreen(const uint16_t *pcolors);
