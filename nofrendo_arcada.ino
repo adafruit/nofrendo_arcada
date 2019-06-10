@@ -1,12 +1,12 @@
 extern "C" {
-  #include "emuapi.h"  
-  #include "nes_emu.h"
+  #include "src/emuapi.h"  
+  #include "src/nes_emu.h"
 }
 
 #include <Adafruit_Arcada.h>
 #include <Audio.h>
 #include <AudioStream.h>
-#include "display_dma.h"
+#include "src/display_dma.h"
 
 #if !defined(USE_TINYUSB)
   #error("Please select TinyUSB for the USB stack!")
@@ -16,7 +16,7 @@ Adafruit_Arcada arcada;
 Display_DMA tft = Display_DMA();
 extern Adafruit_ZeroDMA dma;
 
-#include "AudioPlaySystem.h"
+#include "src/AudioPlaySystem.h"
 
 AudioPlaySystem mymixer = AudioPlaySystem();
 AudioOutputAnalogStereo  audioOut;
