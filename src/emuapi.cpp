@@ -24,7 +24,7 @@ const char *loadmenu_strings[LOADMENU_SELECTIONS] = {"Load Saved Game", "Start N
 void emu_Halt(const char * error_msg) {
   Serial.println(error_msg);
   tft.stop();
-  arcada.fillScreen(ARCADA_BLACK);
+  arcada.display->fillScreen(ARCADA_BLACK);
   arcada.haltBox(error_msg);
 }
 
@@ -71,7 +71,7 @@ int emu_FileOpen(char * filename)
     retval = 1;
   } else {
     char error_msg[255];
-    sprintf(error_msg, "emu_FileOpen: failed to open file %s");
+    sprintf(error_msg, "emu_FileOpen: failed to open file %s", filename);
     emu_Halt(error_msg);
   }
   return (retval);
@@ -80,14 +80,14 @@ int emu_FileOpen(char * filename)
 uint8_t *emu_LoadROM(char *filename) {
   Serial.print("LoadROM: "); Serial.print(filename);
   tft.stop();
-  arcada.fillScreen(ARCADA_CYAN);
+  arcada.display->fillScreen(ARCADA_CYAN);
   arcada.infoBox("Loading ROM into FLASH memory...", 0);
   uint8_t *romdata = arcada.writeFileToFlash(filename, DEFAULT_FLASH_ADDRESS);
   Serial.printf(" into address $%08x", (uint32_t)romdata);
   if ((uint32_t)romdata == 0) {
     emu_Halt("Unable to load file into FLASH, maybe too large?");
   }
-  arcada.fillScreen(ARCADA_BLACK);
+  arcada.display->fillScreen(ARCADA_BLACK);
   tft.refresh();
   return romdata;
 }
@@ -193,6 +193,13 @@ void emu_SaveState() {
   Serial.print("Saving state to file:");
   Serial.println(filename);
   state_save(filename);
+#else
+  tft.stop();
+  delay(50);
+  arcada.infoBox("Save state not supported!");
+  arcada.display->fillScreen(ARCADA_BLACK);
+  tft.refresh();
+
 #endif
 }
 
@@ -215,7 +222,7 @@ void emu_LoadState(char skipMenu) {
     tft.stop();
     delay(50);
     uint8_t selected = 0;
-    arcada.fillScreen(ARCADA_BLUE);
+    arcada.display->fillScreen(ARCADA_BLUE);
     selected = arcada.menu(loadmenu_strings, LOADMENU_SELECTIONS, ARCADA_WHITE, ARCADA_BLACK);
     Serial.printf("Selected %d\n", selected);
     if (selected ==  LOADMENU_LOADSAVED) {
@@ -227,9 +234,15 @@ void emu_LoadState(char skipMenu) {
       arcada.remove(filename);
     }
     // either way, restart the display
-    arcada.fillScreen(ARCADA_BLACK);
+    arcada.display->fillScreen(ARCADA_BLACK);
     tft.refresh();
   }
+#else
+  tft.stop();
+  delay(50);
+  arcada.infoBox("Save state not supported!");
+  arcada.display->fillScreen(ARCADA_BLACK);
+  tft.refresh();
 #endif
 }
 

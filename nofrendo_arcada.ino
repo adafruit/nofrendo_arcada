@@ -90,20 +90,20 @@ static void main_step() {
        
       // save or save+exit
       if ((selected == SAVEMENU_SAVE) || (selected == SAVEMENU_SAVEEXIT)) {
-        arcada.fillScreen(ARCADA_BLUE);
+        arcada.display->fillScreen(ARCADA_BLUE);
         arcada.infoBox("Saving game state...", 0);
         delay(100);
         emu_SaveState();
-        arcada.fillScreen(ARCADA_BLACK);
+        arcada.display->fillScreen(ARCADA_BLACK);
       }
 
       // reload state
       if (selected == SAVEMENU_RELOAD) {
-        arcada.fillScreen(ARCADA_BLUE);
+        arcada.display->fillScreen(ARCADA_BLUE);
         arcada.infoBox("Loading game state...", 0);
         delay(100);
         emu_LoadState(true);
-        arcada.fillScreen(ARCADA_BLACK);
+        arcada.display->fillScreen(ARCADA_BLACK);
       }
       // save, reload or just continue
       if ((selected == SAVEMENU_SAVE) || (selected == SAVEMENU_CONTINUE) || (selected == SAVEMENU_RELOAD)) {
@@ -123,7 +123,7 @@ static void main_step() {
   if (fileSelect) {
     while (! arcada.chooseFile("/nes", rom_filename_path, 512, "nes"));
     Serial.print("Selected: "); Serial.println(rom_filename_path);
-    arcada.fillScreen(ARCADA_BLACK);
+    arcada.display->fillScreen(ARCADA_BLACK);
     if (!arcada.getFrameBuffer() && !arcada.createFrameBuffer(EMUDISPLAY_WIDTH, EMUDISPLAY_HEIGHT)) {
       arcada.haltBox("Failed to create framebuffer, out of memory?");
     }
@@ -170,7 +170,7 @@ static void vblCount() {
 // ****************************************************
 void setup() {
   // Setup hardware, start USB disk drive
-  arcada.begin();
+  arcada.arcadaBegin();
   arcada.filesysBeginMSD();
   delay(100);
 
@@ -183,7 +183,7 @@ void setup() {
 
   // Init screen with blue so we know its working
   arcada.displayBegin();
-  arcada.fillScreen(ARCADA_BLUE);
+  arcada.display->fillScreen(ARCADA_BLUE);
   arcada.setBacklight(255);
 
   // Check we have a valid filesys

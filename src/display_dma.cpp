@@ -13,6 +13,15 @@ extern volatile bool test_invert_screen;
 //  #error("Must not have SPI DMA enabled in Adafruit_SPITFT.h")
 //#endif
 
+#ifdef ST77XX_SLPOUT
+#define DISPLAY_SLPOUT ST77XX_SLPOUT
+#define DISPLAY_RAMWR ST77XX_RAMWR
+#endif
+#ifdef ILI9341_SLPOUT
+#define DISPLAY_SLPOUT ILI9341_SLPOUT
+#define DISPLAY_RAMWR ILI9341_RAMWR
+#endif
+
 #include <Adafruit_ZeroDMA.h>
 #include "wiring_private.h"  // pinPeripheral() function
 #include <malloc.h>          // memalign() function
@@ -107,13 +116,13 @@ uint16_t * Display_DMA::getFrameBuffer(void) {
 }
 
 void Display_DMA::setArea(uint16_t x1,uint16_t y1,uint16_t x2,uint16_t y2) {
-  arcada.startWrite();
-  arcada.setAddrWindow(x1, y1, x2-x1+1, y2-y1+1);
+  arcada.display->startWrite();
+  arcada.display->setAddrWindow(x1, y1, x2-x1+1, y2-y1+1);
 }
 
 void Display_DMA::refresh(void) {
   digitalWrite(ARCADA_TFT_DC, 0);
-  ARCADA_TFT_SPI.transfer(ILI9341_SLPOUT);
+  ARCADA_TFT_SPI.transfer(DISPLAY_SLPOUT);
   digitalWrite(ARCADA_TFT_DC, 1);
   digitalWrite(ARCADA_TFT_CS, 1);
   ARCADA_TFT_SPI.endTransaction();  
@@ -143,7 +152,7 @@ void Display_DMA::refresh(void) {
   ARCADA_TFT_SPI.beginTransaction(SPISettings(SPICLOCK, MSBFIRST, SPI_MODE0));
   digitalWrite(ARCADA_TFT_CS, 0);
   digitalWrite(ARCADA_TFT_DC, 0);
-  ARCADA_TFT_SPI.transfer(ILI9341_RAMWR);
+  ARCADA_TFT_SPI.transfer(DISPLAY_RAMWR);
   digitalWrite(ARCADA_TFT_DC, 1);
 
   Serial.print("DMA kick");

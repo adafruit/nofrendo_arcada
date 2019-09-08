@@ -103,7 +103,7 @@ static void rom_savesram(rominfo_t *rominfo)
 static void rom_loadsram(rominfo_t *rominfo)
 {
   // TODO - add battery backup support!
-  emu_printf("SRAM load not yet supported");
+  emu_printf("SRAM load not yet supported\n");
 
   /*
    FILE *fp;
@@ -132,7 +132,7 @@ static int rom_allocsram(rominfo_t *rominfo)
 {
 #ifdef USE_SRAM
    /* Load up SRAM */
-   emu_printf("Alloc. SRAM");
+   emu_printf("Alloc SRAM...");
    rominfo->sram = emu_Malloc(SRAM_BANK_LENGTH * rominfo->sram_banks);
    if (NULL == rominfo->sram)
    {
@@ -367,7 +367,7 @@ rominfo_t *rom_load(const char *filename)
    unsigned char *rom=(unsigned char*)osd_getromdata();
    rominfo_t *rominfo;
 
-   emu_printf("Alloc ROMinfo");
+   emu_printf("Alloc ROMinfo...");
    rominfo = emu_Malloc(sizeof(rominfo_t));
    if (NULL == rominfo)
       return NULL;
@@ -402,7 +402,7 @@ rominfo_t *rom_load(const char *filename)
 
    rom_loadsram(rominfo);
 
-   emu_printf("ROM loaded");
+   emu_printf("ROM loaded\n");
 
    return rominfo;
 
@@ -416,7 +416,7 @@ void rom_free(rominfo_t **rominfo)
 {
    if (NULL == *rominfo)
    {
-      emu_printf("ROM not loaded");
+      emu_printf("ROM isnt loaded\n");
       return;
    }
 
