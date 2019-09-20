@@ -82,7 +82,8 @@ uint8_t *emu_LoadROM(char *filename) {
   tft.stop();
   arcada.display->fillScreen(ARCADA_CYAN);
   arcada.infoBox("Loading ROM into FLASH memory...", 0);
-  uint8_t *romdata = arcada.writeFileToFlash(filename, DEFAULT_FLASH_ADDRESS);
+//  uint8_t *romdata = arcada.writeFileToFlash(filename, DEFAULT_FLASH_ADDRESS);
+  uint8_t *romdata = arcada.writeFileToFlash(filename);
   Serial.printf(" into address $%08x", (uint32_t)romdata);
   if ((uint32_t)romdata == 0) {
     emu_Halt("Unable to load file into FLASH, maybe too large?");
