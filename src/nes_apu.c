@@ -41,7 +41,8 @@
 #define  APU_NOISE_OUTPUT              ((apu.noise.output_vol + apu.noise.output_vol + apu.noise.output_vol) >> 2)
 #define  APU_DMC_OUTPUT                ((apu.dmc.output_vol + apu.dmc.output_vol + apu.dmc.output_vol) >> 4)
 
-#define  FIXED_VOLUME_SHIFT 6
+/* volume shift */
+extern uint volume_shift;
 
 /* active APU */
 static apu_t apu;
@@ -240,9 +241,9 @@ static int32 apu_rectangle_##ch(void) \
       return APU_RECTANGLE_OUTPUT(ch); \
 \
    if (apu.rectangle[ch].fixed_envelope) \
-      output = apu.rectangle[ch].volume << FIXED_VOLUME_SHIFT; /* fixed volume */ \
+      output = apu.rectangle[ch].volume << volume_shift; /* fixed volume */ \
    else \
-      output = (apu.rectangle[ch].env_vol ^ 0x0F) << FIXED_VOLUME_SHIFT; \
+      output = (apu.rectangle[ch].env_vol ^ 0x0F) << volume_shift; \
 \
    num_times = total = 0; \
 \
@@ -327,9 +328,9 @@ static int32 apu_rectangle_##ch(void) \
    } \
 \
    if (apu.rectangle[ch].fixed_envelope) \
-      output = apu.rectangle[ch].volume << FIXED_VOLUME_SHIFT; /* fixed volume */ \
+      output = apu.rectangle[ch].volume << volume_shift; /* fixed volume */ \
    else \
-      output = (apu.rectangle[ch].env_vol ^ 0x0F) << FIXED_VOLUME_SHIFT; \
+      output = (apu.rectangle[ch].env_vol ^ 0x0F) << volume_shift; \
 \
    if (0 == apu.rectangle[ch].adder) \
       apu.rectangle[ch].output_vol = output; \
@@ -382,9 +383,9 @@ static int32 apu_triangle(void)
       apu.triangle.adder = (apu.triangle.adder + 1) & 0x1F;
 
       if (apu.triangle.adder & 0x10)
-         apu.triangle.output_vol -= (2 << FIXED_VOLUME_SHIFT);
+         apu.triangle.output_vol -= (2 << volume_shift);
       else
-         apu.triangle.output_vol += (2 << FIXED_VOLUME_SHIFT);
+         apu.triangle.output_vol += (2 << volume_shift);
    }
 
    return APU_TRIANGLE_OUTPUT;
@@ -438,7 +439,7 @@ static int32 apu_noise(void)
    
 #ifdef APU_OVERSAMPLE
    if (apu.noise.fixed_envelope)
-      outvol = apu.noise.volume << FIXED_VOLUME_SHIFT; /* fixed volume */
+      outvol = apu.noise.volume << volume_shift; /* fixed volume */
    else
       outvol = (apu.noise.env_vol ^ 0x0F) << 8;
 
@@ -496,9 +497,9 @@ static int32 apu_noise(void)
    apu.noise.output_vol = total / num_times;
 #else /* !APU_OVERSAMPLE */
    if (apu.noise.fixed_envelope)
-      outvol = apu.noise.volume << FIXED_VOLUME_SHIFT; /* fixed volume */
+      outvol = apu.noise.volume << volume_shift; /* fixed volume */
    else
-      outvol = (apu.noise.env_vol ^ 0x0F) << FIXED_VOLUME_SHIFT;
+      outvol = (apu.noise.env_vol ^ 0x0F) << volume_shift;
 
 #ifndef REALTIME_NOISE
    if (apu.noise.short_sample)
@@ -591,7 +592,7 @@ static int32 apu_dmc(void)
             if (apu.dmc.regs[1] < 0x7D)
             {
                apu.dmc.regs[1] += 2;
-               apu.dmc.output_vol += (2 << FIXED_VOLUME_SHIFT);
+               apu.dmc.output_vol += (2 << volume_shift);
             }
          }
          /* negative delta */
@@ -600,7 +601,7 @@ static int32 apu_dmc(void)
             if (apu.dmc.regs[1] > 1)
             {
                apu.dmc.regs[1] -= 2;
-               apu.dmc.output_vol -= (2 << FIXED_VOLUME_SHIFT);
+               apu.dmc.output_vol -= (2 << volume_shift);
             }
          }
       }

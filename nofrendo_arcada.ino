@@ -23,13 +23,15 @@ AudioOutputAnalogStereo  audioOut;
 AudioConnection   patchCord1(mymixer, 0, audioOut, 0);
 AudioConnection   patchCord2(mymixer, 0, audioOut, 1);
 
-#define SAVEMENU_SELECTIONS 5
+#define SAVEMENU_SELECTIONS 7
 #define SAVEMENU_CONTINUE   0
 #define SAVEMENU_SAVE       1
 #define SAVEMENU_RELOAD     2
 #define SAVEMENU_SAVEEXIT   3
 #define SAVEMENU_EXIT       4
-const char *savemenu_strings[SAVEMENU_SELECTIONS] = {"Continue", "Save", "Reload Save", "Save & Exit", "Exit"};
+#define SAVEMENU_VOLUME_P   5
+#define SAVEMENU_VOLUME_M   6
+const char *savemenu_strings[SAVEMENU_SELECTIONS] = {"Continue", "Save", "Reload Save", "Save & Exit", "Exit", "Volume+", "Volume-"};
 
 #if EMU_SCALEDOWN == 1
   // Packed 16-big RGB palette (big-endian order)
@@ -61,6 +63,7 @@ int skip=0;
 uint16_t hold_start_select = 0;
 extern uint16_t button_CurState;
 char rom_filename_path[512];
+uint volume_shift=6;
     
 static void main_step() {
   uint16_t bClick = emu_DebounceLocalKeys();
@@ -115,6 +118,22 @@ static void main_step() {
       if ((selected == SAVEMENU_EXIT) || (selected == SAVEMENU_SAVEEXIT)) {
         nes_End();
         NVIC_SystemReset();
+      }
+
+      // volume+ or volume-
+      if ((selected == SAVEMENU_VOLUME_P) || (selected == SAVEMENU_VOLUME_M)) {
+        if (selected == SAVEMENU_VOLUME_P) {
+          volume_shift++;
+        } else {
+          volume_shift--;
+        }
+        if (volume_shift > 8) {
+          volume_shift = 8;
+        } else if (volume_shift < 1) {
+          volume_shift = 1;
+        }
+        tft.refresh();
+        mymixer.start();  // keep playing!
       }
     }
   } else {
